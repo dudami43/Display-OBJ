@@ -18,6 +18,12 @@ add_definitions(
 add_executable(
     ${PROJECT_NAME}
     "main.cpp"
+    "Model/Lexer.cpp"
+    "Model/Lexer.h"
+    "Model/OBJ.cpp"
+    "Model/OBJ.h"
+    "Model/Model.cpp"
+    "Model/Model.h"
 )
 
 target_link_libraries(

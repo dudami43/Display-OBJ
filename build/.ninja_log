@@ -1,7 +1,11 @@
 # ninja log v5
-2	3534	562726571	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-3541	4001	562726571	jogo.exe	fb35aa4f357a77ba
-9	1326	562727876	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-1328	1630	562727876	jogo.exe	fb35aa4f357a77ba
-8	1387	562727949	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-1387	1718	562727949	jogo.exe	fb35aa4f357a77ba
+11	1534	562892684	CMakeFiles/flight-simulator.dir/Model/Lexer.cpp.obj	f4f19b8a102c379c
+16	2680	562892685	CMakeFiles/flight-simulator.dir/Model/Model.cpp.obj	e810896dddd82cef
+2	3237	562892685	CMakeFiles/flight-simulator.dir/main.cpp.obj	8570ef905188c723
+6	3576	562892686	CMakeFiles/flight-simulator.dir/Model/OBJ.cpp.obj	f9892002db92dc74
+3576	4013	562892686	flight-simulator.exe	3af27f59ba71b3ee
+10	1511	562892806	CMakeFiles/jogo.dir/Model/Lexer.cpp.obj	1dbd7d58f6a4d61c
+5	2621	562892807	CMakeFiles/jogo.dir/Model/Model.cpp.obj	1ccb88b86e93d5a8
+1	3103	562892808	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+14	3421	562892808	CMakeFiles/jogo.dir/Model/OBJ.cpp.obj	ade5c37a483d9907
+3421	3854	562892808	jogo.exe	25d7cc6d73fb82af
