@@ -67,11 +67,11 @@ void insertFace(int insercao, int aux)
     }
 }
 
-int main () {
-
+void lerArquivo(string nome)
+{
     ifstream arquivo;
-    arquivo.open("teapot.obj");
-    char item[100], c; int j = 0;
+    arquivo.open(nome);
+    char item[100], c;
 
     if (arquivo.is_open()) {
         while (!arquivo.eof()) {
@@ -112,7 +112,6 @@ int main () {
             }
             else if(!strcmp(item,"f"))
             {   
-                cout << "f ";
                 char aux[100]; int i = 0, insercao = 0;
                 bool verifica = false;
                 arquivo.get(c); //ignorar espaço em branco
@@ -150,7 +149,7 @@ int main () {
                         insercao = 0;
                         i = 0;
                         verifica = true;
-                        cout << vf.vertice << " ";
+                        face.vertices.push_back(vf);
                     }
                     else if (c == '\n')
                     {
@@ -158,7 +157,9 @@ int main () {
                         if (verifica)
                         {
                             insertFace(insercao, atoi(aux));
-                            cout << vf.vertice << endl;
+                            face.vertices.push_back(vf);
+                            modelo.faces.push_back(face);
+                            face.vertices.clear();
                         }
                         break;
                     }
@@ -166,13 +167,14 @@ int main () {
                 }
             }
         }
-        
-        for (int x = 0; x < modelo.faces.size(); x++)
-        {
-            //cout << "f " << modelo.faces[x].vertices[0].vertice << " " << modelo.faces[x].vertices[1].vertice << " " << modelo.faces[x].vertices[2].vertice << endl;
-        }
     }
-
+    else cout << "Erro ao abrir o arquivo";
     arquivo.close();
+}
+
+int main () {
+
+    lerArquivo("Modelos/teapot.obj");
+
     return 0;
 }
