@@ -53,24 +53,6 @@ build CMakeFiles/jogo.dir/main.cpp.obj: CXX_COMPILER__jogo ../main.cpp || cmake_
   INCLUDES = -I../ -I../include
   OBJECT_DIR = CMakeFiles\jogo.dir
   OBJECT_FILE_DIR = CMakeFiles\jogo.dir
-build CMakeFiles/jogo.dir/Model/Lexer.cpp.obj: CXX_COMPILER__jogo ../Model/Lexer.cpp || cmake_object_order_depends_target_jogo
-  DEFINES = -DFREEGLUT_STATIC
-  DEP_FILE = CMakeFiles\jogo.dir\Model\Lexer.cpp.obj.d
-  INCLUDES = -I../ -I../include
-  OBJECT_DIR = CMakeFiles\jogo.dir
-  OBJECT_FILE_DIR = CMakeFiles\jogo.dir\Model
-build CMakeFiles/jogo.dir/Model/OBJ.cpp.obj: CXX_COMPILER__jogo ../Model/OBJ.cpp || cmake_object_order_depends_target_jogo
-  DEFINES = -DFREEGLUT_STATIC
-  DEP_FILE = CMakeFiles\jogo.dir\Model\OBJ.cpp.obj.d
-  INCLUDES = -I../ -I../include
-  OBJECT_DIR = CMakeFiles\jogo.dir
-  OBJECT_FILE_DIR = CMakeFiles\jogo.dir\Model
-build CMakeFiles/jogo.dir/Model/Model.cpp.obj: CXX_COMPILER__jogo ../Model/Model.cpp || cmake_object_order_depends_target_jogo
-  DEFINES = -DFREEGLUT_STATIC
-  DEP_FILE = CMakeFiles\jogo.dir\Model\Model.cpp.obj.d
-  INCLUDES = -I../ -I../include
-  OBJECT_DIR = CMakeFiles\jogo.dir
-  OBJECT_FILE_DIR = CMakeFiles\jogo.dir\Model
 
 # =============================================================================
 # Link build statements for EXECUTABLE target jogo
@@ -79,7 +61,7 @@ build CMakeFiles/jogo.dir/Model/Model.cpp.obj: CXX_COMPILER__jogo ../Model/Model
 #############################################
 # Link the executable jogo.exe
 
-build jogo.exe: CXX_EXECUTABLE_LINKER__jogo CMakeFiles/jogo.dir/main.cpp.obj CMakeFiles/jogo.dir/Model/Lexer.cpp.obj CMakeFiles/jogo.dir/Model/OBJ.cpp.obj CMakeFiles/jogo.dir/Model/Model.cpp.obj
+build jogo.exe: CXX_EXECUTABLE_LINKER__jogo CMakeFiles/jogo.dir/main.cpp.obj
   LINK_LIBRARIES = -lfreeglut_static -lopengl32 -lglu32 -lwinmm -lgdi32 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LC:/Users/meomi/DOCUME~1/6PEROD~1/INF390~1/TRABAL~3/lib
   OBJECT_DIR = CMakeFiles\jogo.dir
