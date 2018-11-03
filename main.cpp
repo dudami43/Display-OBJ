@@ -1,4 +1,3 @@
-#include <Model/OBJ.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <iostream>
@@ -10,36 +9,78 @@ void display(void);
 void keyboard(unsigned char key, int x, int y);
 void mouse(int button, int state, int x, int y);
 
+float width = 1000;
+float height = 600;
+
 //posicao do observador (camera)
 GLdouble viewer[] = {2.0, 2.0, 3.0};
-Model model_teste;
 
 void init(void) {
-    glClearColor(1.0, 1.0, 1.0, 1.0); // cor para limpeza do buffer
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
+    
+    glClearColor(0.0, 0.0, 0.0, 0.0); // cor para limpeza do buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
 
-    //glOrtho(-2.0, 2.0, -2.0, 2.0, 2.0, 20.0); // proje��o paralela
+    glMatrixMode(GL_PROJECTION); 
+    glLoadIdentity(); 
+    gluOrtho2D(0,width,0,height); 
 
-   // glFrustum(-2.0, 2.0, -2.0, 2.0, 2.0, 20.0); // proje��o perspectiva
-
-   glFrustum(-2.0, 2.0, -2.0, 2.0, 2.0, 20.0); // proje��o perspectiva
-
-    //gluPerspective(70.0,1.0,2.0,20.0); // proje��o perspectiva
-    glMatrixMode(GL_MODELVIEW);
-
-   //  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
 }
+
+void desenhaMenu(){
+    glColor3f(1.0,0.1,0.34);
+    glBegin(GL_POLYGON); // inicia o desenho do padrao na origem		
+					glVertex2f(2*(width/3)+10, 50);
+					glVertex2f(3000, 50);
+					glVertex2f(3000, 100);
+					glVertex2f(2*(width/3)+10, 100);				
+	glEnd();
+}
+
+
+void desenhaObjeto(){
+    glColor3f(0.40,0.6,0.34);
+    glBegin(GL_POLYGON); // inicia o desenho do padrao na origem		
+					glVertex2f(0, 50);
+					glVertex2f(1000, 50);
+					glVertex2f(1000, 100);
+					glVertex2f(0, 100);				
+	glEnd();
+}
+
+
+
 
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
-    glLoadIdentity();
-    gluLookAt(viewer[0],viewer[1],viewer[2], // define posicao do observador
-    0.0, 0.0, 0.0,                           // ponto de interesse (foco)
-    0.0, 1.0, 0.0);                          // vetor de "view up"
 
-    glFlush();
- //   glutSwapBuffers(); //usando double buffer (para evitar 'flicker')
+    glViewport (0, 0, 2*(width/3), height);
+    glMatrixMode (GL_PROJECTION);                       
+    glLoadIdentity ();                          
+    
+    gluOrtho2D(0, 500, 0, height);//gluPerspective(45.0, 0, 0.01, 1000.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    desenhaObjeto();
+
+    /*gluLookAt(viewer[0],viewer[1],viewer[2], // define posicao do observador
+    0.0, 0.0, 0.0,                           // ponto de interesse (foco)
+    0.0, 1.0, 0.0);
+*/
+
+    glViewport (2*(width/3), 0, width/3, height);
+    glMatrixMode (GL_PROJECTION);                      
+    glLoadIdentity ();                         
+    gluOrtho2D(2*(width/3), width, 0, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity (); 
+
+    desenhaMenu();
+
+    glFlush();       
+    glutSwapBuffers();
+    glutPostRedisplay();                
+    //glutSwapBuffers(); //usando double buffer (para evitar 'flicker')
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -55,17 +96,17 @@ void keyboard(unsigned char key, int x, int y) {
 
 void carregarModelos()
 {
-    OBJ obj("teapot.obj");
+    /*OBJ obj("teapot.obj");
     obj.load(model_teste);
-    cout << model_teste.faces[0];
+    cout << model_teste.faces[0];*/
 }
 
 
 int main(int argc, char **argv) {
     carregarModelos();
     glutInit(&argc,argv); //inicializa a glut
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH); //tipo de buffer/cores
-    glutInitWindowSize(500, 500); //dimens�es da janela
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //tipo de buffer/cores
+    glutInitWindowSize(width, height); //dimens�es da janela
     glutInitWindowPosition(100, 100); //posicao da janela
     glutCreateWindow("Trabalho 3"); //cria a janela
     init();
