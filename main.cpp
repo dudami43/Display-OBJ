@@ -1,14 +1,14 @@
 #include <Model/OBJ.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
-
+#include <iostream>
 #include <stdlib.h>
+using namespace std;
+
 void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
 void mouse(int button, int state, int x, int y);
-
-
 
 //posicao do observador (camera)
 GLdouble viewer[] = {2.0, 2.0, 3.0};
@@ -57,6 +57,7 @@ void carregarModelos()
 {
     OBJ obj("teapot.obj");
     obj.load(model_teste);
+    cout << model_teste.faces[0];
 }
 
 
