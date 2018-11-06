@@ -17,7 +17,7 @@ float height = 600;
 Modelo modelo;
 
 //posicao do observador (camera)
-GLdouble viewer[] = {2.0, 2.0, 3.0};
+GLdouble viewer[] = {0.0, 0.0, 50.0};
 
 char texto[100];
 char objName[100], objNameInput[100];
@@ -286,19 +286,20 @@ void desenhaObjeto()
 void carregarModelos()
 {
     OBJ obj;
-    modelo = obj.lerArquivo("Modelos/teapot.obj");
-    glBegin(GL_TRIANGLE_STRIP);
+    modelo = obj.lerArquivo("Modelos/teddy.obj");
+
     for (int i = 0; i < modelo.faces.size(); i++)
     {
+        glBegin(GL_LINE_LOOP);
         for (int j = 0; j < modelo.faces[i].vertices.size(); i++)
         {
-            cout << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x << " " << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y << " " << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z << endl;
+            //cout << "f " << modelo.faces[i].vertices[0].vertice << " " << modelo.faces[i].vertices[1].vertice << " " << modelo.faces[i].vertices[2].vertice << endl;
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
         }
+        glEnd();
     }
-    glEnd();
 }
 
 void display(void)
@@ -308,20 +309,18 @@ void display(void)
     glViewport(0, 0, 2 * (width / 3), height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-
-    gluOrtho2D(-20, 20, -20, 20);
-    //glFrustum(-3.0, 3.0, -3.225, 3.225, 2.0, 20.0);
-    carregarModelos();
-
+    gluPerspective(50, 1, 1, 100);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    //desenhaObjeto();
-    /*gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
+    gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
-              0.0, 1.0, 0.0);*/
+              0.0, 1.0, 0.0);
+    carregarModelos();
+    //glPopMatrix();
 
     glViewport(2 * (width / 3), 0, width / 3, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(2 * (width / 3), width, 0, height);
@@ -361,7 +360,7 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);                                    //inicializa a glut
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //tipo de buffer/cores
     glutInitWindowSize(width, height);                        //dimens�es da janela
-    glutInitWindowPosition(100, 100);                         //posicao da janela
+    glutInitWindowPosition(100, 50);                          //posicao da janela
     glutCreateWindow("Trabalho 3");                           //cria a janela
     init();
     glutDisplayFunc(display);   //determina fun��o callback de desenho

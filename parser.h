@@ -98,6 +98,7 @@ class OBJ
                     arquivo >> vertice.x;
                     arquivo >> vertice.y;
                     arquivo >> vertice.z;
+                    //cout << "v " << vertice.x << " " << vertice.y << " " << vertice.z << endl;
                     arquivo.get(c);
                     if (c != '\n')
                     {
