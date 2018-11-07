@@ -58,7 +58,7 @@ void init(void)
 
 void desenhaMenu()
 {
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //ms
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
@@ -272,28 +272,17 @@ void desenhaMenu()
     glEnd();
 }
 
-void desenhaObjeto()
-{
-    glColor3f(0.40, 0.6, 0.34);
-    glBegin(GL_POLYGON); // inicia o desenho do padrao na origem
-    glVertex2f(0, 50);
-    glVertex2f(1000, 50);
-    glVertex2f(1000, 100);
-    glVertex2f(0, 100);
-    glEnd();
-}
-
 void carregarModelos()
 {
     OBJ obj;
     modelo = obj.lerArquivo("Modelos/teddy.obj");
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     for (int i = 0; i < modelo.faces.size(); i++)
     {
-        glBegin(GL_LINE_LOOP);
+        glBegin(GL_POLYGON);
         for (int j = 0; j < modelo.faces[i].vertices.size(); i++)
         {
-            //cout << "f " << modelo.faces[i].vertices[0].vertice << " " << modelo.faces[i].vertices[1].vertice << " " << modelo.faces[i].vertices[2].vertice << endl;
+            cout << "f " << modelo.faces[i].vertices[0].vertice << " " << modelo.faces[i].vertices[1].vertice << " " << modelo.faces[i].vertices[2].vertice << endl;
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
