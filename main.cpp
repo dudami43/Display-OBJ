@@ -16,9 +16,10 @@ void mouse(int button, int state, int x, int y);
 float width = 1000;
 float height = 600;
 Modelo modelo;
+bool wireframe = true;
 
 //posicao do observador (camera)
-GLdouble viewer[] = {0.0, 0.0, 50.0};
+GLdouble viewer[] = {50.0, 50.0, 50.0};
 
 char texto[100];
 char objName[100], objNameInput[100];
@@ -273,21 +274,45 @@ void desenhaMenu()
     glEnd();
 }
 
+void desenhaEixos()
+{
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(1500.0f, 0.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 1500.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0, 0.0, 1.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 1500.0f);
+    glEnd();
+}
+
 void carregarModelos(string nome)
 {
     OBJ obj;
     modelo = obj.lerArquivo(nome);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (wireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     for (int i = 0; i < modelo.faces.size(); i++)
     {
         glBegin(GL_POLYGON);
         for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
         {
-            //cout << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x << " " << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y << " " << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z << endl;
+            cout << modelo.faces[i].vertices[j].vertice << " ";
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
         }
+        cout << endl;
         glEnd();
     }
 }
@@ -305,7 +330,8 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-    carregarModelos("Modelos/teddy.obj");
+    carregarModelos("Modelos/teapot.obj");
+    desenhaEixos();
 
     glViewport(2 * (width / 3), 0, width / 3, height);
     glMatrixMode(GL_MODELVIEW);

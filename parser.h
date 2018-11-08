@@ -70,6 +70,12 @@ class OBJ
             break;
         }
     }
+    /*void ajusteFaces(Modelo &modelo)
+    {
+        para cada vertice de uma face
+            se minimo<0
+                cada vertice = vertice + |min| + 1
+    }*/
 
   public:
     Modelo lerArquivo(string nome)
@@ -180,6 +186,10 @@ class OBJ
                         }
                         arquivo.get(c);
                     }
+                }
+                else
+                {
+                    arquivo >> item;
                 }
             }
         }

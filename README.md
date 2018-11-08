@@ -1,3 +1,15 @@
+TODO
+- Botão importar
+- Rotação 
+- Translação 
+- Escala 
+- Ler todos os arquivos
+- Tratar índices negativos
+- Mensurar a performance
+- Simular câmera
+- Cores diferentes para cada objeto
+- Ver em wireframes ou preenchido
+- Travar redimensionamento
 
 ### Tech
 * [gcc]
