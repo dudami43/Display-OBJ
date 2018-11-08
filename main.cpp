@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string>
 #include "parser.h"
 
 using namespace std;
@@ -272,17 +273,17 @@ void desenhaMenu()
     glEnd();
 }
 
-void carregarModelos()
+void carregarModelos(string nome)
 {
     OBJ obj;
-    modelo = obj.lerArquivo("Modelos/teddy.obj");
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    modelo = obj.lerArquivo(nome);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     for (int i = 0; i < modelo.faces.size(); i++)
     {
         glBegin(GL_POLYGON);
-        for (int j = 0; j < modelo.faces[i].vertices.size(); i++)
+        for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
         {
-            cout << "f " << modelo.faces[i].vertices[0].vertice << " " << modelo.faces[i].vertices[1].vertice << " " << modelo.faces[i].vertices[2].vertice << endl;
+            //cout << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x << " " << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y << " " << modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z << endl;
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
@@ -304,8 +305,7 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-    carregarModelos();
-    //glPopMatrix();
+    carregarModelos("Modelos/teddy.obj");
 
     glViewport(2 * (width / 3), 0, width / 3, height);
     glMatrixMode(GL_MODELVIEW);
@@ -345,7 +345,6 @@ void keyboard(unsigned char key, int x, int y)
 
 int main(int argc, char **argv)
 {
-    carregarModelos();
     glutInit(&argc, argv);                                    //inicializa a glut
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //tipo de buffer/cores
     glutInitWindowSize(width, height);                        //dimens�es da janela

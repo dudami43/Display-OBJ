@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/meomi/Documents/6º Período/Inf 390/Trabalho-3
+# Install script for directory: C:/Users/Duda/Documents/Trabalho-3
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/flight-simulator")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/jogo")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/meomi/Documents/6º Período/Inf 390/Trabalho-3/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/Duda/Documents/Trabalho-3/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
