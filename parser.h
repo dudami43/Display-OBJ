@@ -95,7 +95,7 @@ class OBJ
             while (!arquivo.eof())
             {
                 arquivo >> item;
-                if (!strcmp(item, "mtlib"))
+                if (!strcmp(item, "mtllib"))
                 {
                     arquivo >> modelo.mtl;
                 }
@@ -186,10 +186,6 @@ class OBJ
                         }
                         arquivo.get(c);
                     }
-                }
-                else
-                {
-                    arquivo >> item;
                 }
             }
         }
