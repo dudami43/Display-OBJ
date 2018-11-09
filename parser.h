@@ -70,12 +70,30 @@ class OBJ
             break;
         }
     }
-    /*void ajusteFaces(Modelo &modelo)
+    void ajusteFaces(Modelo &modelo)
     {
-        para cada vertice de uma face
-            se minimo<0
-                cada vertice = vertice + |min| + 1
-    }*/
+        int min = modelo.faces[0].vertices[0].vertice;
+        for (int i = 0; i < modelo.faces.size(); i++)
+        {
+            for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+            {
+                //cout << modelo.faces[i].vertices[j].vertice << endl;
+                if (modelo.faces[i].vertices[j].vertice < min)
+                    min = modelo.faces[i].vertices[j].vertice;
+            }
+        }
+        if (min < 0)
+        {
+            for (int i = 0; i < modelo.faces.size(); i++)
+            {
+                for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+                {
+                    //cout << modelo.faces[i].vertices[j].vertice << endl;
+                    modelo.faces[i].vertices[j].vertice += 1 - min;
+                }
+            }
+        }
+    }
 
   public:
     Modelo lerArquivo(string nome)
@@ -139,7 +157,7 @@ class OBJ
                     arquivo.get(c);
                     while (true)
                     {
-                        if (isdigit(c))
+                        if (isdigit(c) || c == '-')
                         {
                             aux[i++] = c;
                             verifica = true;
@@ -192,6 +210,15 @@ class OBJ
         else
         {
             cout << "Erro ao abrir o arquivo";
+        }
+        ajusteFaces(modelo);
+        for (int i = 0; i < modelo.faces.size(); i++)
+        {
+            for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+            {
+                cout << modelo.faces[i].vertices[j].vertice << " ";
+            }
+            cout << endl;
         }
         arquivo.close();
         return modelo;

@@ -3,8 +3,7 @@ TODO
 - Rotação 
 - Translação 
 - Escala 
-- Ler todos os arquivos
-- Tratar índices negativos
+- Ajuste dos arquivos: Erro de segmentação
 - Mensurar a performance
 - Simular câmera
 - Cores diferentes para cada objeto

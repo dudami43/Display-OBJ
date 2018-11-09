@@ -42,7 +42,7 @@ rule CXX_EXECUTABLE_LINKER__jogo
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\msys64\mingw64\bin\cmake.exe -HC:\Users\Duda\Documents\Trabalho-3 -BC:\Users\Duda\Documents\Trabalho-3\build
+  command = C:\msys64\mingw64\bin\cmake.exe -H"C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3" -B"C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3\build"
   description = Re-running CMake...
   generator = 1
 

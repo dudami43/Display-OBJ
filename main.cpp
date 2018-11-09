@@ -307,12 +307,12 @@ void carregarModelos(string nome)
         glBegin(GL_POLYGON);
         for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
         {
-            cout << modelo.faces[i].vertices[j].vertice << " ";
+            //cout << modelo.faces[i].vertices[j].vertice << " ";
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
         }
-        cout << endl;
+        //cout << endl;
         glEnd();
     }
 }
@@ -330,7 +330,7 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-    carregarModelos("Modelos/teapot2.obj");
+    carregarModelos("Modelos/cumulus01.obj");
     desenhaEixos();
 
     glViewport(2 * (width / 3), 0, width / 3, height);
@@ -347,7 +347,6 @@ void display(void)
     glFlush();
     glutSwapBuffers();
     glutPostRedisplay();
-    //glutSwapBuffers(); //usando double buffer (para evitar 'flicker')
 }
 
 void keyboard(unsigned char key, int x, int y)
