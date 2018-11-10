@@ -106,7 +106,7 @@ class OBJ
         Face face;
         ifstream arquivo;
         arquivo.open(nome);
-        char item[100], c;
+        char item[1000000], c;
 
         if (arquivo.is_open())
         {
@@ -204,6 +204,10 @@ class OBJ
                         }
                         arquivo.get(c);
                     }
+                }
+                else
+                {
+                    cout << item << endl;
                 }
             }
         }

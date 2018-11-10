@@ -330,7 +330,7 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-    carregarModelos("Modelos/cumulus01.obj");
+    carregarModelos("Modelos/altostratus00.obj");
     desenhaEixos();
 
     glViewport(2 * (width / 3), 0, width / 3, height);
