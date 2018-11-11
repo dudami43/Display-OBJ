@@ -1,3 +1,14 @@
+TODO
+- Botão importar
+- Rotação 
+- Translação 
+- Escala 
+- Ajuste dos arquivos: Erro de segmentação
+- Mensurar a performance
+- Simular câmera
+- Cores diferentes para cada objeto
+- Ver em wireframes ou preenchido
+- Travar redimensionamento
 
 ### Tech
 * [gcc]

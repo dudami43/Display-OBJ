@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
+#include "parser.h"
+
 using namespace std;
 
 void init(void);
@@ -14,9 +16,11 @@ void mouse(int button, int state, int x, int y);
 float width = 1000;
 float height = 600;
 
-//posicao do observador (camera)
-GLdouble viewer[] = {2.0, 2.0, 3.0};
+Modelo modelo;
+bool wireframe = true;
 
+//posicao do observador (camera)
+GLdouble viewer[] = {50.0, 50.0, 50.0};
 
 char texto[100];
 char objName[200];
@@ -48,7 +52,6 @@ float rotacao[4] = {0.0};
 float translacao[3] = {0.0};
 float escala[3] = {1.0};
 
-
 char transformacoes[10];
 int posTrans = 0;
 
@@ -58,29 +61,111 @@ int posNomeArquivo = 0;
 int hidden = 0;
 
 
-void init(void) {
-    
-    glClearColor(0.0, 0.0, 0.0, 0.0); // cor para limpeza do buffer
+
+void desenhaEixos()
+{
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(1500.0f, 0.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 1500.0f, 0.0f);
+    glEnd();
+    glColor3f(0.0, 0.0, 1.0);
+    glBegin(GL_LINES);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 1500.0f);
+    glEnd();
+}
+
+void carregarModelos(string nome)
+{
+    OBJ obj;
+    modelo = obj.lerArquivo(nome);
+    if (wireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    for (int i = 0; i < modelo.faces.size(); i++)
+    {
+        glBegin(GL_POLYGON);
+        for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+        {
+            //cout << modelo.faces[i].vertices[j].vertice << " ";
+            glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
+                       modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
+                       modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
+        }
+        //cout << endl;
+        glEnd();
+    }
+}
+
+
+void init(void)
+{
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);                   // cor para limpeza do buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
 
-    glMatrixMode(GL_PROJECTION); 
-    glLoadIdentity(); 
-    gluOrtho2D(0,width,0,height); 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, width, 0, height);
 
-    for(int i=0; i<4; i++){
+    for (int i = 0; i < 4; i++)
+    {
         sprintf(rotacaoTexto[i], "0.0");
     }
-    for(int i=0; i<3; i++){
+    for (int i = 0; i < 3; i++)
+    {
         sprintf(translacaoTexto[i], "0.0");
         sprintf(escalaTexto[i], "1.0");
     }
 
-
     sprintf(objName, "teste.obj");
     sprintf(triangulos, "Triangulos: 0");
     sprintf(ms, "0.0 ms");
-
 }
+
+
+void display(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
+
+    glViewport(0, 0, 2 * (width / 3), height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(50, 1, 1, 100);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
+              0.0, 0.0, 0.0,                   // ponto de interesse (foco)
+              0.0, 1.0, 0.0);
+    carregarModelos("Modelos/altostratus00.obj");
+    desenhaEixos();
+
+    glViewport(2 * (width / 3), 0, width / 3, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(2 * (width / 3), width, 0, height);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    desenhaMenu();
+
+    glFlush();
+    glutSwapBuffers();
+    glutPostRedisplay();
+}
+
+
+
 
 
 
@@ -319,6 +404,7 @@ void desenhaMenu(){
 
 }
 
+
 void abrirArquivo(){
     //abre arquivo
     int j = 0;
@@ -327,56 +413,6 @@ void abrirArquivo(){
         j++;
     }   
     objName[j] = 0;
-}
-
-
-
-void desenhaObjeto(){
-    glColor3f(0.40,0.6,0.34);
-    glBegin(GL_POLYGON); // inicia o desenho do padrao na origem		
-					glVertex2f(0, 50);
-					glVertex2f(1000, 50);
-					glVertex2f(1000, 100);
-					glVertex2f(0, 100);				
-	glEnd();
-}
-
-
-
-
-void display(void) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
-
-    glViewport (0, 0, 2*(width/3), height);
-    glMatrixMode (GL_PROJECTION);                       
-    glLoadIdentity ();                          
-    
-    gluOrtho2D(0, 500, 0, height);//gluPerspective(45.0, 0, 0.01, 1000.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    //desenhaObjeto();
-
-    /*gluLookAt(viewer[0],viewer[1],viewer[2], // define posicao do observador
-    0.0, 0.0, 0.0,                           // ponto de interesse (foco)
-    0.0, 1.0, 0.0);
-*/
-
-    glViewport (2*(width/3), 0, width/3, height);
-    glMatrixMode (GL_PROJECTION);                      
-    glLoadIdentity ();                         
-    gluOrtho2D(2*(width/3), width, 0, height);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity (); 
-
-    desenhaMenu();
-
-    //glFlush();       
-    glutSwapBuffers();
-    glutPostRedisplay();                
-    //cout << estadoClick;
-    
-    //glutSwapBuffers(); //usando double buffer (para evitar 'flicker')
 }
 
 
@@ -456,7 +492,6 @@ void keyboard(unsigned char key, int x, int y) {
    //display();
 }
 
-
 void mouse(int button, int state, int x, int y){
     y = height - y;
     if(x>= 676 && x<=860 && y>=570 && y<=590){ //nome arquivo
@@ -495,34 +530,24 @@ void mouse(int button, int state, int x, int y){
     
 }
 
-
-
-void carregarModelos()
+int main(int argc, char **argv)
 {
-    /*OBJ obj("teapot.obj");
-    obj.load(model_teste);
-    cout << model_teste.faces[0];*/
-}
-
-
-int main(int argc, char **argv) {
-    carregarModelos();
-    glutInit(&argc,argv); //inicializa a glut
+    glutInit(&argc, argv);                                    //inicializa a glut
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH); //tipo de buffer/cores
-    glutInitWindowSize(width, height); //dimens�es da janela
-    glutInitWindowPosition(100, 100); //posicao da janela
-    glutCreateWindow("Trabalho 3"); //cria a janela
+    glutInitWindowSize(width, height);                        //dimens�es da janela
+    glutInitWindowPosition(100, 50);                          //posicao da janela
+    glutCreateWindow("Trabalho 3");                           //cria a janela
+
     init();
-    glutDisplayFunc(display); //determina fun��o callback de desenho
+    glutDisplayFunc(display);   //determina fun��o callback de desenho
     glutKeyboardFunc(keyboard); //determina fun��o callback de teclado
     glutMouseFunc(mouse);
 
     glEnable(GL_DEPTH_TEST); //habilita remo��o de superf�cies ocultas usando Z-Buffer
 
-
- //   glEnable (GL_CULL_FACE); //habilita remo��o de superf�cies ocultas usando Back Facxe Culling
- //   glCullFace(GL_FRONT);    // Remove as faces da frente
- //   glCullFace(GL_BACK);    // Remove as faces de tras
+    //   glEnable (GL_CULL_FACE); //habilita remo��o de superf�cies ocultas usando Back Facxe Culling
+    //   glCullFace(GL_FRONT);    // Remove as faces da frente
+    //   glCullFace(GL_BACK);    // Remove as faces de tras
 
     glutMainLoop();
     return 0;
