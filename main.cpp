@@ -12,6 +12,8 @@ void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
 void mouse(int button, int state, int x, int y);
+void desenhaMenu();
+void desenhaEixos();
 
 float width = 1000;
 float height = 600;
