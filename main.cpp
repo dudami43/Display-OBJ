@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string>
 using namespace std;
 
 void init(void);
@@ -18,16 +19,44 @@ GLdouble viewer[] = {2.0, 2.0, 3.0};
 
 
 char texto[100];
-char objName[100], objNameInput[100];
+char objName[200];
 char rotacaoTexto[4][10];
 char translacaoTexto[3][10];
 char escalaTexto[3][10];
 char triangulos[50];
 char ms[50];
 
+/*
+    ESTADO CLICK
+    -1: nenhum
+    0: campo texto abrir arquivo
+    1: botao visibilidade (hidden)
+    2: translacao 1 (x)
+    3: translacao 2 (y)
+    4: translacao 3 (z)
+    5: rotacao 1 (angulo)
+    6: rotacao 2 (x)
+    7: rotacao 3 (y)
+    8: rotacao 4 (z)
+    9: escala 1 (x)
+    10: escala 2 (y)
+    11: escala 3 (z)
+*/
+int estadoClick = -1;
+
 float rotacao[4] = {0.0};
 float translacao[3] = {0.0};
 float escala[3] = {1.0};
+
+
+char transformacoes[10];
+int posTrans = 0;
+
+char nomeArquivo[200];
+int posNomeArquivo = 0;
+
+int hidden = 0;
+
 
 void init(void) {
     
@@ -45,6 +74,7 @@ void init(void) {
         sprintf(translacaoTexto[i], "0.0");
         sprintf(escalaTexto[i], "1.0");
     }
+
 
     sprintf(objName, "teste.obj");
     sprintf(triangulos, "Triangulos: 0");
@@ -222,8 +252,18 @@ void desenhaMenu(){
         for (char *i = objName; *i != 0; i++)
             glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
 	glPopMatrix();
-    
-    //botao hidden
+
+
+    // desenha se está hidden ou não
+    if(hidden){
+        glColor3f(0.0, 0.0, 0.0);
+        glPushMatrix();
+        glRasterPos2f(975, 544);
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 88);
+        glPopMatrix();
+    }
+
+    //check box hidden
     glColor3f(0.84, 0.8, 0.86);
     glBegin(GL_POLYGON);	
         glVertex2f(970, 540);
@@ -251,6 +291,14 @@ void desenhaMenu(){
         glVertex2f(870, 590);				
 	glEnd();
 
+    //texto campo texto abrir arquivo
+    glColor3f(0.0, 0.0, 0.0);
+    glPushMatrix();
+	    glRasterPos2f(676, 574);
+        for (char *i = nomeArquivo; *i != 0; i++)
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
+	glPopMatrix();
+
     //campo texto abrir arquivo
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_POLYGON);	
@@ -270,6 +318,17 @@ void desenhaMenu(){
 	glEnd();
 
 }
+
+void abrirArquivo(){
+    //abre arquivo
+    int j = 0;
+    for(char *i = nomeArquivo; *i != 0; i++){
+        objName[j] = *i;
+        j++;
+    }   
+    objName[j] = 0;
+}
+
 
 
 void desenhaObjeto(){
@@ -312,22 +371,131 @@ void display(void) {
 
     desenhaMenu();
 
-    glFlush();       
+    //glFlush();       
     glutSwapBuffers();
     glutPostRedisplay();                
+    //cout << estadoClick;
+    
     //glutSwapBuffers(); //usando double buffer (para evitar 'flicker')
 }
 
+
+
 void keyboard(unsigned char key, int x, int y) {
-    if (key == 27) exit(0); //ESC
+    
+    if(key == 13 ){ //apertou enter: terminou de escrever o valor da transformacao
+        if(estadoClick >= 2 && estadoClick <= 4){
+            if(transformacoes[0]!=0){ //se não estiver vazio, copia o valor
+                sscanf(transformacoes,"%f",&translacao[estadoClick-2]);//transforma o valor da trasformacao em float e coloca na variavel certa
+                for(int i=0; i<10; i++){ //copia valor da transformacao para o texto
+                    translacaoTexto[estadoClick-2][i] = transformacoes[i];
+                    transformacoes[i] = 0;
+                }
+            }else{ //se estiver vazio o vetor de transformacoes digitado pelo usuário, seta o valor para zero
+                sprintf(translacaoTexto[estadoClick-2], "0.0");
+                translacao[estadoClick-2] = 0.0;
+            }
+        }else if(estadoClick >= 5 && estadoClick <= 8){
+            if(transformacoes[0]!=0){ //se não estiver vazio, copia o valor
+                sscanf(transformacoes,"%f",&rotacao[estadoClick-5]);//transforma o valor da trasformacao em float e coloca na variavel certa
+                for(int i=0; i<10; i++){ //copia valor da transformacao para o texto
+                    rotacaoTexto[estadoClick-5][i] = transformacoes[i];
+                    transformacoes[i] = 0;
+                }
+            }else{ //se estiver vazio o vetor de transformacoes digitado pelo usuário, seta o valor para zero
+                sprintf(rotacaoTexto[estadoClick-5], "0.0");
+                rotacao[estadoClick-2] = 0.0;
+            }
+        }else if(estadoClick >= 9 && estadoClick <= 11){
+            if(transformacoes[0]!=0){ //se não estiver vazio, copia o valor
+                sscanf(transformacoes,"%f",&escala[estadoClick-9]);//transforma o valor da trasformacao em float e coloca na variavel certa
+                for(int i=0; i<10; i++){ //copia valor da transformacao para o texto
+                    escalaTexto[estadoClick-9][i] = transformacoes[i];
+                    transformacoes[i] = 0;
+                }
+            }else{ //se estiver vazio o vetor de transformacoes digitado pelo usuário, seta o valor para 1
+                sprintf(escalaTexto[estadoClick-9], "1.0");
+                escala[estadoClick-9] = 1.0;
+            }
+        }
+        posTrans = 0;
+    }
+
+    else if(estadoClick >= 2 && estadoClick <= 11 && ((key >= 48 && key <= 57) || key == 46)){ // Caixas de selecao para transformacoes && (0-9 || .)
+        transformacoes[posTrans] = key;
+        posTrans++;
+    }else if(estadoClick == 0){
+        if(key == 8){
+            if(posNomeArquivo >=0){
+                posNomeArquivo--;
+                nomeArquivo[posNomeArquivo] = 0;
+            }
+        }else{
+            if(posNomeArquivo <= 188){
+                nomeArquivo[posNomeArquivo] = key;
+                posNomeArquivo++;
+                nomeArquivo[posNomeArquivo] = 0;
+            } 
+        }
+               
+    }
+
+    
+
+    
+
+    /*if (key == 27) exit(0); //ESC
     if (key == 'x') viewer[0] -= 1.0;
     if (key == 'X') viewer[0] += 1.0;
     if (key == 'y') viewer[1] -= 1.0;
     if (key == 'Y') viewer[1] += 1.0;
     if (key == 'z') viewer[2] -= 1.0;
     if (key == 'Z') viewer[2] += 1.0;
-    display();
+    */
+
+   //display();
 }
+
+
+void mouse(int button, int state, int x, int y){
+    y = height - y;
+    if(x>= 676 && x<=860 && y>=570 && y<=590){ //nome arquivo
+        estadoClick = 0;
+    }else if(x>= 870 && x<=990 && y>=570 && y<=590){ //botao importar
+        estadoClick = -1;
+        abrirArquivo();
+    }else if(x>= 970 && x<=990 && y>=540 && y<=570){ //botao hidden
+        estadoClick = 1;
+        if(state == GLUT_DOWN){
+            hidden = hidden?0:1;
+        }
+    }else if(x>= 850 && x<=890 && y>=510 && y<=530){ //translacao x
+        estadoClick = 2;
+    }else if(x>= 900 && x<=940 && y>=510 && y<=530){ //translacao y
+        estadoClick = 3;
+    }else if(x>= 950 && x<=990 && y>=510 && y<=530){ //translacao z
+        estadoClick = 4;
+    }else if(x>= 800 && x<=840 && y>=480 && y<=500){ //rot angulo
+        estadoClick = 5;
+    }else if(x>= 850 && x<=890 && y>=480 && y<=500){ //rot x
+        estadoClick = 6;
+    }else if(x>= 900 && x<=940 && y>=480 && y<=500){ //rot y
+        estadoClick = 7;
+    }else if(x>= 950 && x<=990 && y>=480 && y<=500){ //rot z
+        estadoClick = 8;
+    }else if(x>= 850 && x<=890 && y>=450 && y<=470){ //escala x
+        estadoClick = 9;
+    }else if(x>= 900 && x<=940 && y>=450 && y<=470){ //escala x
+        estadoClick = 10;
+    }else if(x>= 950 && x<=990 && y>=450 && y<=470){ //escala x
+        estadoClick = 11;
+    }else{ //qualquer outro lugar
+        estadoClick = -1;
+    }
+    
+}
+
+
 
 void carregarModelos()
 {
@@ -347,6 +515,7 @@ int main(int argc, char **argv) {
     init();
     glutDisplayFunc(display); //determina fun��o callback de desenho
     glutKeyboardFunc(keyboard); //determina fun��o callback de teclado
+    glutMouseFunc(mouse);
 
     glEnable(GL_DEPTH_TEST); //habilita remo��o de superf�cies ocultas usando Z-Buffer
 
