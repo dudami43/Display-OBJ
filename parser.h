@@ -6,6 +6,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 using namespace std;
 
@@ -105,7 +108,7 @@ class OBJ
         Vertice_Face vf;
         Face face;
         ifstream arquivo;
-        arquivo.open(nome);
+        arquivo.open(nome.c_str());
         char item[1000000], c;
 
         if (arquivo.is_open())
