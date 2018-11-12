@@ -205,10 +205,6 @@ class OBJ
                         arquivo.get(c);
                     }
                 }
-                else
-                {
-                    cout << item << endl;
-                }
             }
         }
         else
@@ -216,14 +212,6 @@ class OBJ
             cout << "Erro ao abrir o arquivo";
         }
         ajusteFaces(modelo);
-        for (int i = 0; i < modelo.faces.size(); i++)
-        {
-            for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
-            {
-                cout << modelo.faces[i].vertices[j].vertice << " ";
-            }
-            cout << endl;
-        }
         arquivo.close();
         return modelo;
     }

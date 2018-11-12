@@ -1,3 +1,3 @@
-C:/Users/meomi/Documents/6º Período/Inf 390/Trabalho-3/build/CMakeFiles/rebuild_cache.dir
-C:/Users/meomi/Documents/6º Período/Inf 390/Trabalho-3/build/CMakeFiles/jogo.dir
-C:/Users/meomi/Documents/6º Período/Inf 390/Trabalho-3/build/CMakeFiles/edit_cache.dir
+C:/Users/Duda/Documents/Trabalho-3/build/CMakeFiles/rebuild_cache.dir
+C:/Users/Duda/Documents/Trabalho-3/build/CMakeFiles/jogo.dir
+C:/Users/Duda/Documents/Trabalho-3/build/CMakeFiles/edit_cache.dir

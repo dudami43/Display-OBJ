@@ -143,12 +143,10 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-    carregarModelos("Modelos/altostratus00.obj");
+    carregarModelos("Modelos/teapot.obj");
     desenhaEixos();
 
     glViewport(2 * (width / 3), 0, width / 3, height);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(2 * (width / 3), width, 0, height);
@@ -157,14 +155,13 @@ void display(void)
 
     desenhaMenu();
 
-    glFlush();
     glutSwapBuffers();
     glutPostRedisplay();
 }
 
 void desenhaMenu()
 {
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);    
     //ms
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
