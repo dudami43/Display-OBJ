@@ -3,11 +3,10 @@ TODO
 - Rotação 
 - Translação 
 - Escala 
-- Ajuste dos arquivos: Erro de segmentação
-- Mensurar a performance
-- Simular câmera
 - Cores diferentes para cada objeto
 - Ver em wireframes ou preenchido
+- Mensurar a performance
+- Simular câmera
 - Travar redimensionamento
 
 ### Tech
