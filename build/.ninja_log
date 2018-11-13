@@ -1,9 +1,19 @@
 # ninja log v5
-0	6809	563752873	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-6811	7195	563752873	jogo.exe	a0e6ef6f0407457f
-3	1238	563753323	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-1238	1417	563753323	jogo.exe	a0e6ef6f0407457f
-3	1157	563753389	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-1158	1314	563753389	jogo.exe	a0e6ef6f0407457f
-3	1148	563753445	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
-1148	1307	563753445	jogo.exe	a0e6ef6f0407457f
+1	2262	563851196	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2269	2643	563851196	jogo.exe	9ce5a352251d99ed
+10	2293	563851465	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2293	2703	563851465	jogo.exe	9ce5a352251d99ed
+13	5652	563851501	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+5653	7071	563851503	jogo.exe	9ce5a352251d99ed
+12	2932	563851534	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2933	3419	563851534	jogo.exe	9ce5a352251d99ed
+9	4196	563851573	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+4196	4837	563851574	jogo.exe	9ce5a352251d99ed
+12	2195	563851583	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2196	2569	563851583	jogo.exe	9ce5a352251d99ed
+9	2452	563851602	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2453	2898	563851602	jogo.exe	9ce5a352251d99ed
+10	2143	563851684	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2143	2515	563851684	jogo.exe	9ce5a352251d99ed
+11	2154	563851695	CMakeFiles/jogo.dir/main.cpp.obj	5adf56baf7ccde9e
+2155	2524	563851695	jogo.exe	9ce5a352251d99ed

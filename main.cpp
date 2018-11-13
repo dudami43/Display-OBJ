@@ -18,14 +18,14 @@ void desenhaEixos();
 float width = 1000;
 float height = 600;
 
-Modelo modelo;
+Modelo modelo1, modelo2, modelo3;
 bool wireframe = true;
 
 //posicao do observador (camera)
 GLdouble viewer[] = {50.0, 50.0, 50.0};
 
 char texto[100];
-char objName[200];
+char objName[200], teste[200];
 char rotacaoTexto[4][10];
 char translacaoTexto[3][10];
 char escalaTexto[3][10];
@@ -81,7 +81,7 @@ void desenhaEixos()
     glEnd();
 }
 
-void carregarModelos(string nome)
+void carregarModelos(string nome, Modelo &modelo)
 {
     OBJ obj;
     modelo = obj.lerArquivo(nome);
@@ -156,10 +156,9 @@ void display(void)
     //glTranslatef(-10.0, -10.0, 0.0);
 
     //glTranslatef(10.0, 10.0, 0.0);
-
     if (objName[0] != 0 && !hidden)
     {
-        carregarModelos(string(objName));
+        carregarModelos(string(objName), modelo1);
     }
 
     desenhaEixos();
