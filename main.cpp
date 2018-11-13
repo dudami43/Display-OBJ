@@ -52,7 +52,7 @@ int estadoClick = -1;
 
 float rotacao[4] = {0.0};
 float translacao[3] = {0.0};
-float escala[3] = {1.0};
+float escala[3] = {0.0};
 
 char transformacoes[10];
 int posTrans = 0;
@@ -85,6 +85,13 @@ void carregarModelos(string nome)
 {
     OBJ obj;
     modelo = obj.lerArquivo(nome);
+
+    glPushMatrix();
+    glTranslatef(translacao[0], translacao[1], translacao[2]);
+    glRotatef(rotacao[0], rotacao[1], rotacao[2], rotacao[3]);
+    glScalef(escala[0], escala[1], escala[2]);
+    //glPopMatrix();
+
     if (wireframe)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
@@ -103,6 +110,7 @@ void carregarModelos(string nome)
         //cout << endl;
         glEnd();
     }
+    glPopMatrix();
 }
 
 void init(void)
@@ -123,9 +131,10 @@ void init(void)
     {
         sprintf(translacaoTexto[i], "0.0");
         sprintf(escalaTexto[i], "1.0");
+        escala[i] = 1.0;
     }
 
-    sprintf(objName, "teste.obj");
+    sprintf(objName, "Modelos/cow.obj");
     sprintf(triangulos, "Triangulos: 0");
     sprintf(ms, "0.0 ms");
 }
@@ -143,7 +152,16 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-    carregarModelos("Modelos/teapot.obj");
+
+    //glTranslatef(-10.0, -10.0, 0.0);
+
+    //glTranslatef(10.0, 10.0, 0.0);
+
+    if (objName[0] != 0 && !hidden)
+    {
+        carregarModelos(string(objName));
+    }
+
     desenhaEixos();
 
     glViewport(2 * (width / 3), 0, width / 3, height);
@@ -161,7 +179,7 @@ void display(void)
 
 void desenhaMenu()
 {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //ms
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();
@@ -395,7 +413,6 @@ void desenhaMenu()
 
 void abrirArquivo()
 {
-    //abre arquivo
     int j = 0;
     for (char *i = nomeArquivo; *i != 0; i++)
     {
@@ -464,11 +481,12 @@ void keyboard(unsigned char key, int x, int y)
         posTrans = 0;
     }
 
-    else if (estadoClick >= 2 && estadoClick <= 11 && ((key >= 48 && key <= 57) || key == 46))
-    { // Caixas de selecao para transformacoes && (0-9 || .)
+    else if (estadoClick >= 2 && estadoClick <= 11 && ((key >= 48 && key <= 57) || key == 46 || key == 45))
+    { // Caixas de selecao para transformacoes && (0-9 || . || -)
         transformacoes[posTrans] = key;
         posTrans++;
     }
+
     else if (estadoClick == 0)
     {
         if (key == 8)
@@ -487,6 +505,14 @@ void keyboard(unsigned char key, int x, int y)
                 posNomeArquivo++;
                 nomeArquivo[posNomeArquivo] = 0;
             }
+        }
+    }
+
+    else if (estadoClick == -1)
+    {
+        if (key == 'F' || key == 'f')
+        {
+            wireframe = wireframe ? 0 : 1;
         }
     }
 
@@ -555,11 +581,11 @@ void mouse(int button, int state, int x, int y)
         estadoClick = 9;
     }
     else if (x >= 900 && x <= 940 && y >= 450 && y <= 470)
-    { //escala x
+    { //escala y
         estadoClick = 10;
     }
     else if (x >= 950 && x <= 990 && y >= 450 && y <= 470)
-    { //escala x
+    { //escala z
         estadoClick = 11;
     }
     else
