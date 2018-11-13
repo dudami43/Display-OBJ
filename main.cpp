@@ -25,7 +25,7 @@ bool wireframe = true;
 GLdouble viewer[] = {50.0, 50.0, 50.0};
 
 char texto[100];
-char objName[200], teste[200];
+char objName[200];
 char rotacaoTexto[4][10];
 char translacaoTexto[3][10];
 char escalaTexto[3][10];
@@ -146,7 +146,7 @@ void display(void)
     glViewport(0, 0, 2 * (width / 3), height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50, 1, 1, 100);
+    gluPerspective(50, 1, 1, 200);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
@@ -513,18 +513,16 @@ void keyboard(unsigned char key, int x, int y)
         {
             wireframe = wireframe ? 0 : 1;
         }
+
+        if (key == 'a' || key == 'A')
+            viewer[0] -= 1.0;
+        if (key == 'd' || key == 'D')
+            viewer[0] += 1.0;
+        if (key == 's' || key == 'S')
+            viewer[1] -= 1.0;
+        if (key == 'w' || key == 'W')
+            viewer[1] += 1.0;
     }
-
-    /*if (key == 27) exit(0); //ESC
-    if (key == 'x') viewer[0] -= 1.0;
-    if (key == 'X') viewer[0] += 1.0;
-    if (key == 'y') viewer[1] -= 1.0;
-    if (key == 'Y') viewer[1] += 1.0;
-    if (key == 'z') viewer[2] -= 1.0;
-    if (key == 'Z') viewer[2] += 1.0;
-    */
-
-    //display();
 }
 
 void mouse(int button, int state, int x, int y)
