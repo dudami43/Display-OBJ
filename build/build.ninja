@@ -34,7 +34,7 @@ include rules.ninja
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D C:\Users\meomi\Downloads\Trabalho-3\build && C:\msys64\mingw64\bin\cmake.exe -HC:\Users\meomi\Downloads\Trabalho-3 -BC:\Users\meomi\Downloads\Trabalho-3\build"
+  COMMAND = cmd.exe /C "cd /D "C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3\build" && C:\msys64\mingw64\bin\cmake.exe -H"C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3" -B"C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3\build""
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -65,7 +65,7 @@ build CMakeFiles/jogo.dir/main.cpp.obj: CXX_COMPILER__jogo ../main.cpp || cmake_
 
 build jogo.exe: CXX_EXECUTABLE_LINKER__jogo CMakeFiles/jogo.dir/main.cpp.obj
   LINK_LIBRARIES = -lfreeglut_static -lopengl32 -lglu32 -lwinmm -lgdi32 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LC:/Users/meomi/Downloads/Trabalho-3/lib
+  LINK_PATH = -LC:/Users/meomi/DOCUME~1/6PEROD~1/INF390~1/TRABAL~3/lib
   OBJECT_DIR = CMakeFiles\jogo.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
@@ -78,7 +78,7 @@ build jogo.exe: CXX_EXECUTABLE_LINKER__jogo CMakeFiles/jogo.dir/main.cpp.obj
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D C:\Users\meomi\Downloads\Trabalho-3\build && C:\msys64\mingw64\bin\cmake-gui.exe -HC:\Users\meomi\Downloads\Trabalho-3 -BC:\Users\meomi\Downloads\Trabalho-3\build"
+  COMMAND = cmd.exe /C "cd /D "C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3\build" && C:\msys64\mingw64\bin\cmake-gui.exe -H"C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3" -B"C:\Users\meomi\Documents\6º Período\Inf 390\Trabalho-3\build""
   DESC = Running CMake cache editor...
   pool = console
   restat = 1

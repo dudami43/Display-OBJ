@@ -20,6 +20,7 @@ float height = 600;
 
 int contObj = 0; //quantidade de objetos importados. MAX = 3;
 const int MAXOBJ = 3;
+int num_poligonos = 0;
 
 Modelo modelo1, modelo2, modelo3;
 bool wireframe = true;
@@ -153,9 +154,7 @@ void init(void)
         objName[k][0] = 0;
     }
 
-    //sprintf(objName, "Modelos/cow.obj");
-
-    sprintf(triangulos, "Triangulos: 0");
+    sprintf(triangulos, "Poligonos: %d", num_poligonos);
     sprintf(ms, "0.0 ms");
 }
 
@@ -172,15 +171,14 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
-
-    //glTranslatef(-10.0, -10.0, 0.0);
-
-    //glTranslatef(10.0, 10.0, 0.0);
+    num_poligonos = 0;
     for (int j = 0; j < contObj; j++)
     {
         if (objName[j][0] != 0 && !hidden[j])
         {
             carregarModelos(string(objName[j]), modelo1, j);
+            num_poligonos += modelo1.faces.size();
+            sprintf(triangulos, "Poligonos: %d", num_poligonos);
         }
     }
 
@@ -660,10 +658,6 @@ int main(int argc, char **argv)
     glutMouseFunc(mouse);
 
     glEnable(GL_DEPTH_TEST); //habilita remo��o de superf�cies ocultas usando Z-Buffer
-
-    //   glEnable (GL_CULL_FACE); //habilita remo��o de superf�cies ocultas usando Back Facxe Culling
-    //   glCullFace(GL_FRONT);    // Remove as faces da frente
-    //   glCullFace(GL_BACK);    // Remove as faces de tras
 
     glutMainLoop();
     return 0;

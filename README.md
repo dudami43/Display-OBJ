@@ -1,12 +1,5 @@
 TODO
-- Botão importar
-- Rotação 
-- Translação 
-- Escala 
-- Cores diferentes para cada objeto
-- Ver em wireframes ou preenchido
 - Mensurar a performance
-- Simular câmera
 - Travar redimensionamento
 
 ### Tech
