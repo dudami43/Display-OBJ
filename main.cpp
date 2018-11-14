@@ -18,17 +18,24 @@ void desenhaEixos();
 float width = 1000;
 float height = 600;
 
+int contObj = 0; //quantidade de objetos importados. MAX = 3;
+const int MAXOBJ = 3;
+
 Modelo modelo1, modelo2, modelo3;
 bool wireframe = true;
 
 //posicao do observador (camera)
 GLdouble viewer[] = {50.0, 50.0, 50.0};
 
+float colors[3][3] = {{0.96, 0.73, 0.26},
+                      {0.84, 0.26, 0.96},
+                      {0.26, 0.49, 0.96}};
+
 char texto[100];
-char objName[200];
-char rotacaoTexto[4][10];
-char translacaoTexto[3][10];
-char escalaTexto[3][10];
+char objName[MAXOBJ][200];
+char rotacaoTexto[MAXOBJ][4][10];
+char translacaoTexto[MAXOBJ][3][10];
+char escalaTexto[MAXOBJ][3][10];
 char triangulos[50];
 char ms[50];
 
@@ -50,17 +57,23 @@ char ms[50];
 */
 int estadoClick = -1;
 
-float rotacao[4] = {0.0};
-float translacao[3] = {0.0};
-float escala[3] = {0.0};
+/*
+    Define o objeto a qual a caixa de texto clicada pertence
+    0 ate MAXOBJ
+*/
+int estadoClickObj = -1;
+
+float rotacao[MAXOBJ][4] = {0.0};
+float translacao[MAXOBJ][3] = {0.0};
+float escala[MAXOBJ][3] = {0.0};
 
 char transformacoes[10];
 int posTrans = 0;
 
-char nomeArquivo[200];
+char nomeArquivo[3][200];
 int posNomeArquivo = 0;
 
-int hidden = 0;
+int hidden[MAXOBJ] = {0};
 
 void desenhaEixos()
 {
@@ -81,15 +94,17 @@ void desenhaEixos()
     glEnd();
 }
 
-void carregarModelos(string nome, Modelo &modelo)
+void carregarModelos(string nome, Modelo &modelo, int indice)
 {
     OBJ obj;
     modelo = obj.lerArquivo(nome);
 
+    glColor3f(colors[indice][0], colors[indice][1], colors[indice][2]);
+
     glPushMatrix();
-    glTranslatef(translacao[0], translacao[1], translacao[2]);
-    glRotatef(rotacao[0], rotacao[1], rotacao[2], rotacao[3]);
-    glScalef(escala[0], escala[1], escala[2]);
+    glTranslatef(translacao[indice][0], translacao[indice][1], translacao[indice][2]);
+    glRotatef(rotacao[indice][0], rotacao[indice][1], rotacao[indice][2], rotacao[indice][3]);
+    glScalef(escala[indice][0], escala[indice][1], escala[indice][2]);
     //glPopMatrix();
 
     if (wireframe)
@@ -122,19 +137,24 @@ void init(void)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, width, 0, height);
-
-    for (int i = 0; i < 4; i++)
+    for (int k = 0; k < MAXOBJ; k++)
     {
-        sprintf(rotacaoTexto[i], "0.0");
-    }
-    for (int i = 0; i < 3; i++)
-    {
-        sprintf(translacaoTexto[i], "0.0");
-        sprintf(escalaTexto[i], "1.0");
-        escala[i] = 1.0;
+        for (int i = 0; i < 4; i++)
+        {
+            sprintf(rotacaoTexto[k][i], "0.0");
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            sprintf(translacaoTexto[k][i], "0.0");
+            sprintf(escalaTexto[k][i], "1.0");
+            escala[k][i] = 1.0;
+        }
+
+        objName[k][0] = 0;
     }
 
-    sprintf(objName, "Modelos/cow.obj");
+    //sprintf(objName, "Modelos/cow.obj");
+
     sprintf(triangulos, "Triangulos: 0");
     sprintf(ms, "0.0 ms");
 }
@@ -156,9 +176,12 @@ void display(void)
     //glTranslatef(-10.0, -10.0, 0.0);
 
     //glTranslatef(10.0, 10.0, 0.0);
-    if (objName[0] != 0 && !hidden)
+    for (int j = 0; j < contObj; j++)
     {
-        carregarModelos(string(objName), modelo1);
+        if (objName[j][0] != 0 && !hidden[j])
+        {
+            carregarModelos(string(objName[j]), modelo1, j);
+        }
     }
 
     desenhaEixos();
@@ -195,175 +218,180 @@ void desenhaMenu()
         glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
     glPopMatrix();
 
-    //escala
-    glColor3f(1.0, 1.0, 1.0);
-    sprintf(texto, "Escala:");
-    glPushMatrix();
-    glRasterPos2f(676, 452);
-    for (char *i = texto; *i != 0; i++)
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
-    glPopMatrix();
-
-    glColor3f(0.0, 0.0, 0.0);
-    for (int j = 0; j < 3; j++)
+    //os campos aparecem na quantidade de objetos importados.
+    for (int l = 0; l < contObj; l++)
     {
+
+        //escala
+        glColor3f(1.0, 1.0, 1.0);
+        sprintf(texto, "Escala:");
         glPushMatrix();
-        glRasterPos2f(850 + (j * 50) + 2, 452);
-        for (char *i = escalaTexto[j]; *i != 0; i++)
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *i);
+        glRasterPos2f(676, 452 - (l * 130));
+        for (char *i = texto; *i != 0; i++)
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
         glPopMatrix();
-    }
 
-    // 3 campos de texto
-    glColor3f(1.0, 1.0, 1.0);
-    //campo 3 (escalaZ)
-    glBegin(GL_POLYGON);
-    glVertex2f(950, 450);
-    glVertex2f(990, 450);
-    glVertex2f(990, 470);
-    glVertex2f(950, 470);
-    glEnd();
+        glColor3f(0.0, 0.0, 0.0);
+        for (int j = 0; j < 3; j++)
+        {
+            glPushMatrix();
+            glRasterPos2f(850 + (j * 50) + 2, 452 - (l * 130));
+            for (char *i = escalaTexto[l][j]; *i != 0; i++)
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *i);
+            glPopMatrix();
+        }
 
-    //campo 2 (escalaY)
-    glBegin(GL_POLYGON);
-    glVertex2f(900, 450);
-    glVertex2f(940, 450);
-    glVertex2f(940, 470);
-    glVertex2f(900, 470);
-    glEnd();
+        // 3 campos de texto
+        glColor3f(1.0, 1.0, 1.0);
+        //campo 3 (escalaZ)
+        glBegin(GL_POLYGON);
+        glVertex2f(950, 450 - (l * 130));
+        glVertex2f(990, 450 - (l * 130));
+        glVertex2f(990, 470 - (l * 130));
+        glVertex2f(950, 470 - (l * 130));
+        glEnd();
 
-    //campo 1 (escalaX)
-    glBegin(GL_POLYGON);
-    glVertex2f(850, 450);
-    glVertex2f(890, 450);
-    glVertex2f(890, 470);
-    glVertex2f(850, 470);
-    glEnd();
+        //campo 2 (escalaY)
+        glBegin(GL_POLYGON);
+        glVertex2f(900, 450 - (l * 130));
+        glVertex2f(940, 450 - (l * 130));
+        glVertex2f(940, 470 - (l * 130));
+        glVertex2f(900, 470 - (l * 130));
+        glEnd();
 
-    //rotacao
-    glColor3f(1.0, 1.0, 1.0);
-    sprintf(texto, "Rotacao:");
-    glPushMatrix();
-    glRasterPos2f(676, 482);
-    for (char *i = texto; *i != 0; i++)
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
-    glPopMatrix();
+        //campo 1 (escalaX)
+        glBegin(GL_POLYGON);
+        glVertex2f(850, 450 - (l * 130));
+        glVertex2f(890, 450 - (l * 130));
+        glVertex2f(890, 470 - (l * 130));
+        glVertex2f(850, 470 - (l * 130));
+        glEnd();
 
-    glColor3f(0.0, 0.0, 0.0);
-    for (int j = 0; j < 4; j++)
-    {
+        //rotacao
+        glColor3f(1.0, 1.0, 1.0);
+        sprintf(texto, "Rotacao:");
         glPushMatrix();
-        glRasterPos2f(800 + (j * 50) + 2, 482);
-        for (char *i = rotacaoTexto[j]; *i != 0; i++)
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *i);
+        glRasterPos2f(676, 482 - (l * 130));
+        for (char *i = texto; *i != 0; i++)
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
         glPopMatrix();
-    }
 
-    //4 campos de texto
-    glColor3f(1.0, 1.0, 1.0);
-    //campo 4 (rotacaoZ)
-    glBegin(GL_POLYGON);
-    glVertex2f(950, 480);
-    glVertex2f(990, 480);
-    glVertex2f(990, 500);
-    glVertex2f(950, 500);
-    glEnd();
+        glColor3f(0.0, 0.0, 0.0);
+        for (int j = 0; j < 4; j++)
+        {
+            glPushMatrix();
+            glRasterPos2f(800 + (j * 50) + 2, 482 - (l * 130));
+            for (char *i = rotacaoTexto[l][j]; *i != 0; i++)
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *i);
+            glPopMatrix();
+        }
 
-    //campo 3 (rotacaoY)
-    glBegin(GL_POLYGON);
-    glVertex2f(900, 480);
-    glVertex2f(940, 480);
-    glVertex2f(940, 500);
-    glVertex2f(900, 500);
-    glEnd();
+        //4 campos de texto
+        glColor3f(1.0, 1.0, 1.0);
+        //campo 4 (rotacaoZ)
+        glBegin(GL_POLYGON);
+        glVertex2f(950, 480 - (l * 130));
+        glVertex2f(990, 480 - (l * 130));
+        glVertex2f(990, 500 - (l * 130));
+        glVertex2f(950, 500 - (l * 130));
+        glEnd();
 
-    //campo 2 (rotacaoX)
-    glBegin(GL_POLYGON);
-    glVertex2f(850, 480);
-    glVertex2f(890, 480);
-    glVertex2f(890, 500);
-    glVertex2f(850, 500);
-    glEnd();
+        //campo 3 (rotacaoY)
+        glBegin(GL_POLYGON);
+        glVertex2f(900, 480 - (l * 130));
+        glVertex2f(940, 480 - (l * 130));
+        glVertex2f(940, 500 - (l * 130));
+        glVertex2f(900, 500 - (l * 130));
+        glEnd();
 
-    //campo 1 (rotacaoAngulo)
-    glBegin(GL_POLYGON);
-    glVertex2f(840, 480);
-    glVertex2f(800, 480);
-    glVertex2f(800, 500);
-    glVertex2f(840, 500);
-    glEnd();
+        //campo 2 (rotacaoX)
+        glBegin(GL_POLYGON);
+        glVertex2f(850, 480 - (l * 130));
+        glVertex2f(890, 480 - (l * 130));
+        glVertex2f(890, 500 - (l * 130));
+        glVertex2f(850, 500 - (l * 130));
+        glEnd();
 
-    //translacao
-    glColor3f(1.0, 1.0, 1.0);
-    sprintf(texto, "Translacao:");
-    glPushMatrix();
-    glRasterPos2f(676, 512);
-    for (char *i = texto; *i != 0; i++)
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
-    glPopMatrix();
+        //campo 1 (rotacaoAngulo)
+        glBegin(GL_POLYGON);
+        glVertex2f(840, 480 - (l * 130));
+        glVertex2f(800, 480 - (l * 130));
+        glVertex2f(800, 500 - (l * 130));
+        glVertex2f(840, 500 - (l * 130));
+        glEnd();
 
-    glColor3f(0.0, 0.0, 0.0);
-    for (int j = 0; j < 3; j++)
-    {
+        //translacao
+        glColor3f(1.0, 1.0, 1.0);
+        sprintf(texto, "Translacao:");
         glPushMatrix();
-        glRasterPos2f(850 + (j * 50) + 2, 512);
-        for (char *i = translacaoTexto[j]; *i != 0; i++)
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *i);
+        glRasterPos2f(676, 512 - (l * 130));
+        for (char *i = texto; *i != 0; i++)
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
         glPopMatrix();
-    }
 
-    // 3 campos de texto
-    glColor3f(1.0, 1.0, 1.0);
-    //campo 3 (translacaoZ)
-    glBegin(GL_POLYGON);
-    glVertex2f(950, 510);
-    glVertex2f(990, 510);
-    glVertex2f(990, 530);
-    glVertex2f(950, 530);
-    glEnd();
+        glColor3f(0.0, 0.0, 0.0);
+        for (int j = 0; j < 3; j++)
+        {
+            glPushMatrix();
+            glRasterPos2f(850 + (j * 50) + 2, 512 - (l * 130));
+            for (char *i = translacaoTexto[l][j]; *i != 0; i++)
+                glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *i);
+            glPopMatrix();
+        }
 
-    //campo 2 (translacaoY)
-    glBegin(GL_POLYGON);
-    glVertex2f(900, 510);
-    glVertex2f(940, 510);
-    glVertex2f(940, 530);
-    glVertex2f(900, 530);
-    glEnd();
+        // 3 campos de texto
+        glColor3f(1.0, 1.0, 1.0);
+        //campo 3 (translacaoZ)
+        glBegin(GL_POLYGON);
+        glVertex2f(950, 510 - (l * 130));
+        glVertex2f(990, 510 - (l * 130));
+        glVertex2f(990, 530 - (l * 130));
+        glVertex2f(950, 530 - (l * 130));
+        glEnd();
 
-    //campo 1 (translacaoX)
-    glBegin(GL_POLYGON);
-    glVertex2f(850, 510);
-    glVertex2f(890, 510);
-    glVertex2f(890, 530);
-    glVertex2f(850, 530);
-    glEnd();
+        //campo 2 (translacaoY)
+        glBegin(GL_POLYGON);
+        glVertex2f(900, 510 - (l * 130));
+        glVertex2f(940, 510 - (l * 130));
+        glVertex2f(940, 530 - (l * 130));
+        glVertex2f(900, 530 - (l * 130));
+        glEnd();
 
-    //nome arquivo
-    glColor3f(0.0, 0.0, 0.0);
-    glPushMatrix();
-    glRasterPos2f(676, 542);
-    for (char *i = objName; *i != 0; i++)
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
-    glPopMatrix();
+        //campo 1 (translacaoX)
+        glBegin(GL_POLYGON);
+        glVertex2f(850, 510 - (l * 130));
+        glVertex2f(890, 510 - (l * 130));
+        glVertex2f(890, 530 - (l * 130));
+        glVertex2f(850, 530 - (l * 130));
+        glEnd();
 
-    // desenha se está hidden ou não
-    if (hidden)
-    {
+        //nome arquivo
         glColor3f(0.0, 0.0, 0.0);
         glPushMatrix();
-        glRasterPos2f(975, 544);
-        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 88);
+        glRasterPos2f(676, 542 - (l * 130));
+        for (char *i = objName[l]; *i != 0; i++)
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
         glPopMatrix();
-    }
 
-    //check box hidden
-    glColor3f(0.84, 0.8, 0.86);
-    glBegin(GL_POLYGON);
-    glVertex2f(970, 540);
-    glVertex2f(990, 540);
-    glVertex2f(990, 560);
-    glVertex2f(970, 560);
-    glEnd();
+        // desenha se está hidden ou não
+        if (hidden[l])
+        {
+            glColor3f(0.0, 0.0, 0.0);
+            glPushMatrix();
+            glRasterPos2f(975, 544 - (l * 130));
+            glutBitmapCharacter(GLUT_BITMAP_9_BY_15, 88);
+            glPopMatrix();
+        }
+
+        //check box hidden
+        glColor3f(0.84, 0.8, 0.86);
+        glBegin(GL_POLYGON);
+        glVertex2f(970, 540 - (l * 130));
+        glVertex2f(990, 540 - (l * 130));
+        glVertex2f(990, 560 - (l * 130));
+        glVertex2f(970, 560 - (l * 130));
+        glEnd();
+    }
 
     ///botao abrir arquivo texto
     glColor3f(0.0, 0.0, 0.0);
@@ -387,7 +415,7 @@ void desenhaMenu()
     glColor3f(0.0, 0.0, 0.0);
     glPushMatrix();
     glRasterPos2f(676, 574);
-    for (char *i = nomeArquivo; *i != 0; i++)
+    for (char *i = nomeArquivo[contObj]; *i != 0; i++)
         glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *i);
     glPopMatrix();
 
@@ -413,12 +441,12 @@ void desenhaMenu()
 void abrirArquivo()
 {
     int j = 0;
-    for (char *i = nomeArquivo; *i != 0; i++)
+    for (char *i = nomeArquivo[contObj]; *i != 0; i++)
     {
-        objName[j] = *i;
+        objName[contObj][j] = *i;
         j++;
     }
-    objName[j] = 0;
+    objName[contObj][j] = 0;
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -429,52 +457,52 @@ void keyboard(unsigned char key, int x, int y)
         if (estadoClick >= 2 && estadoClick <= 4)
         {
             if (transformacoes[0] != 0)
-            {                                                               //se não estiver vazio, copia o valor
-                sscanf(transformacoes, "%f", &translacao[estadoClick - 2]); //transforma o valor da trasformacao em float e coloca na variavel certa
+            {                                                                               //se não estiver vazio, copia o valor
+                sscanf(transformacoes, "%f", &translacao[estadoClickObj][estadoClick - 2]); //transforma o valor da trasformacao em float e coloca na variavel certa
                 for (int i = 0; i < 10; i++)
                 { //copia valor da transformacao para o texto
-                    translacaoTexto[estadoClick - 2][i] = transformacoes[i];
+                    translacaoTexto[estadoClickObj][estadoClick - 2][i] = transformacoes[i];
                     transformacoes[i] = 0;
                 }
             }
             else
             { //se estiver vazio o vetor de transformacoes digitado pelo usuário, seta o valor para zero
-                sprintf(translacaoTexto[estadoClick - 2], "0.0");
-                translacao[estadoClick - 2] = 0.0;
+                sprintf(translacaoTexto[estadoClickObj][estadoClick - 2], "0.0");
+                translacao[estadoClickObj][estadoClick - 2] = 0.0;
             }
         }
         else if (estadoClick >= 5 && estadoClick <= 8)
         {
             if (transformacoes[0] != 0)
-            {                                                            //se não estiver vazio, copia o valor
-                sscanf(transformacoes, "%f", &rotacao[estadoClick - 5]); //transforma o valor da trasformacao em float e coloca na variavel certa
+            {                                                                            //se não estiver vazio, copia o valor
+                sscanf(transformacoes, "%f", &rotacao[estadoClickObj][estadoClick - 5]); //transforma o valor da trasformacao em float e coloca na variavel certa
                 for (int i = 0; i < 10; i++)
                 { //copia valor da transformacao para o texto
-                    rotacaoTexto[estadoClick - 5][i] = transformacoes[i];
+                    rotacaoTexto[estadoClickObj][estadoClick - 5][i] = transformacoes[i];
                     transformacoes[i] = 0;
                 }
             }
             else
             { //se estiver vazio o vetor de transformacoes digitado pelo usuário, seta o valor para zero
-                sprintf(rotacaoTexto[estadoClick - 5], "0.0");
-                rotacao[estadoClick - 2] = 0.0;
+                sprintf(rotacaoTexto[estadoClickObj][estadoClick - 5], "0.0");
+                rotacao[estadoClickObj][estadoClick - 2] = 0.0;
             }
         }
         else if (estadoClick >= 9 && estadoClick <= 11)
         {
             if (transformacoes[0] != 0)
-            {                                                           //se não estiver vazio, copia o valor
-                sscanf(transformacoes, "%f", &escala[estadoClick - 9]); //transforma o valor da trasformacao em float e coloca na variavel certa
+            {                                                                           //se não estiver vazio, copia o valor
+                sscanf(transformacoes, "%f", &escala[estadoClickObj][estadoClick - 9]); //transforma o valor da trasformacao em float e coloca na variavel certa
                 for (int i = 0; i < 10; i++)
                 { //copia valor da transformacao para o texto
-                    escalaTexto[estadoClick - 9][i] = transformacoes[i];
+                    escalaTexto[estadoClickObj][estadoClick - 9][i] = transformacoes[i];
                     transformacoes[i] = 0;
                 }
             }
             else
             { //se estiver vazio o vetor de transformacoes digitado pelo usuário, seta o valor para 1
-                sprintf(escalaTexto[estadoClick - 9], "1.0");
-                escala[estadoClick - 9] = 1.0;
+                sprintf(escalaTexto[estadoClickObj][estadoClick - 9], "1.0");
+                escala[estadoClickObj][estadoClick - 9] = 1.0;
             }
         }
         posTrans = 0;
@@ -493,16 +521,16 @@ void keyboard(unsigned char key, int x, int y)
             if (posNomeArquivo >= 0)
             {
                 posNomeArquivo--;
-                nomeArquivo[posNomeArquivo] = 0;
+                nomeArquivo[contObj][posNomeArquivo] = 0;
             }
         }
         else
         {
             if (posNomeArquivo <= 188)
             {
-                nomeArquivo[posNomeArquivo] = key;
+                nomeArquivo[contObj][posNomeArquivo] = key;
                 posNomeArquivo++;
-                nomeArquivo[posNomeArquivo] = 0;
+                nomeArquivo[contObj][posNomeArquivo] = 0;
             }
         }
     }
@@ -528,66 +556,93 @@ void keyboard(unsigned char key, int x, int y)
 void mouse(int button, int state, int x, int y)
 {
     y = height - y;
+
+    //começa como -1 e se não for detectado que o click foi em alguma caixa, no final ele termina como -1 (click fora de caixa)
+    estadoClick = -1;
+    estadoClickObj = -1;
+
     if (x >= 676 && x <= 860 && y >= 570 && y <= 590)
     { //nome arquivo
         estadoClick = 0;
     }
+
     else if (x >= 870 && x <= 990 && y >= 570 && y <= 590)
     { //botao importar
-        estadoClick = -1;
-        abrirArquivo();
-    }
-    else if (x >= 970 && x <= 990 && y >= 540 && y <= 570)
-    { //botao hidden
-        estadoClick = 1;
         if (state == GLUT_DOWN)
         {
-            hidden = hidden ? 0 : 1;
+            if (contObj < MAXOBJ)
+            {
+                abrirArquivo();
+                contObj++;
+                posNomeArquivo = 0;
+            }
         }
     }
-    else if (x >= 850 && x <= 890 && y >= 510 && y <= 530)
-    { //translacao x
-        estadoClick = 2;
-    }
-    else if (x >= 900 && x <= 940 && y >= 510 && y <= 530)
-    { //translacao y
-        estadoClick = 3;
-    }
-    else if (x >= 950 && x <= 990 && y >= 510 && y <= 530)
-    { //translacao z
-        estadoClick = 4;
-    }
-    else if (x >= 800 && x <= 840 && y >= 480 && y <= 500)
-    { //rot angulo
-        estadoClick = 5;
-    }
-    else if (x >= 850 && x <= 890 && y >= 480 && y <= 500)
-    { //rot x
-        estadoClick = 6;
-    }
-    else if (x >= 900 && x <= 940 && y >= 480 && y <= 500)
-    { //rot y
-        estadoClick = 7;
-    }
-    else if (x >= 950 && x <= 990 && y >= 480 && y <= 500)
-    { //rot z
-        estadoClick = 8;
-    }
-    else if (x >= 850 && x <= 890 && y >= 450 && y <= 470)
-    { //escala x
-        estadoClick = 9;
-    }
-    else if (x >= 900 && x <= 940 && y >= 450 && y <= 470)
-    { //escala y
-        estadoClick = 10;
-    }
-    else if (x >= 950 && x <= 990 && y >= 450 && y <= 470)
-    { //escala z
-        estadoClick = 11;
-    }
+
     else
-    { //qualquer outro lugar
-        estadoClick = -1;
+    {
+        for (int l = 0; l < contObj; l++)
+        {
+            if (x >= 970 && x <= 990 && y >= (540 - (l * 130)) && y <= (560 - (l * 130)))
+            { //botao hidden
+                estadoClick = 1;
+                estadoClickObj = -1;
+                if (state == GLUT_DOWN)
+                {
+                    hidden[l] = hidden[l] ? 0 : 1;
+                }
+            }
+            else if (x >= 850 && x <= 890 && y >= (510 - (l * 130)) && y <= (530 - (l * 130)))
+            { //translacao x
+                estadoClick = 2;
+                estadoClickObj = l;
+            }
+            else if (x >= 900 && x <= 940 && y >= (510 - (l * 130)) && y <= (530 - (l * 130)))
+            { //translacao y
+                estadoClick = 3;
+                estadoClickObj = l;
+            }
+            else if (x >= 950 && x <= 990 && y >= (510 - (l * 130)) && y <= (530 - (l * 130)))
+            { //translacao z
+                estadoClick = 4;
+                estadoClickObj = l;
+            }
+            else if (x >= 800 && x <= 840 && y >= (480 - (l * 130)) && y <= (500 - (l * 130)))
+            { //rot angulo
+                estadoClick = 5;
+                estadoClickObj = l;
+            }
+            else if (x >= 850 && x <= 890 && y >= (480 - (l * 130)) && y <= (500 - (l * 130)))
+            { //rot x
+                estadoClick = 6;
+                estadoClickObj = l;
+            }
+            else if (x >= 900 && x <= 940 && y >= (480 - (l * 130)) && y <= (500 - (l * 130)))
+            { //rot y
+                estadoClick = 7;
+                estadoClickObj = l;
+            }
+            else if (x >= 950 && x <= 990 && y >= (480 - (l * 130)) && y <= (500 - (l * 130)))
+            { //rot z
+                estadoClick = 8;
+                estadoClickObj = l;
+            }
+            else if (x >= 850 && x <= 890 && y >= (450 - (l * 130)) && y <= (470 - (l * 130)))
+            { //escala x
+                estadoClick = 9;
+                estadoClickObj = l;
+            }
+            else if (x >= 900 && x <= 940 && y >= (450 - (l * 130)) && y <= (470 - (l * 130)))
+            { //escala y
+                estadoClick = 10;
+                estadoClickObj = l;
+            }
+            else if (x >= 950 && x <= 990 && y >= (450 - (l * 130)) && y <= (470 - (l * 130)))
+            { //escala z
+                estadoClick = 11;
+                estadoClickObj = l;
+            }
+        }
     }
 }
 
