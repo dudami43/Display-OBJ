@@ -158,6 +158,9 @@ void init(void)
     sprintf(ms, "0.0 ms");
 }
 
+int qtdFrames = 0;
+int tempoInicial, tempoFinal, diferencaTempo;
+float framesPorSegundo;
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
@@ -171,7 +174,25 @@ void display(void)
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
               0.0, 0.0, 0.0,                   // ponto de interesse (foco)
               0.0, 1.0, 0.0);
+
+    if (qtdFrames == 0)
+    {
+        tempoInicial = glutGet(GLUT_ELAPSED_TIME);
+    }
+    qtdFrames++;
+    tempoFinal = glutGet(GLUT_ELAPSED_TIME);
+
+    diferencaTempo = tempoFinal - tempoInicial;
+
+    if (diferencaTempo >= 1000)
+    {
+        framesPorSegundo = diferencaTempo / qtdFrames;
+        qtdFrames = 0;
+        sprintf(ms, "%0.3f ms", framesPorSegundo);
+    }
+
     num_poligonos = 0;
+
     for (int j = 0; j < contObj; j++)
     {
         if (objName[j][0] != 0 && !hidden[j])
