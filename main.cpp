@@ -122,7 +122,10 @@ void carregarModelos(string nome, Modelo &modelo, int indice)
         glBegin(GL_POLYGON);
         for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
         {
-            //cout << modelo.faces[i].vertices[j].vertice << " ";
+            //cout << modelo.faces[i].vertices[j].normal << " ";
+            glNormal3f(modelo.normal[modelo.faces[i].vertices[j].normal - 1].x,
+                       modelo.normal[modelo.faces[i].vertices[j].normal - 1].y,
+                       modelo.normal[modelo.faces[i].vertices[j].normal - 1].y);
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
