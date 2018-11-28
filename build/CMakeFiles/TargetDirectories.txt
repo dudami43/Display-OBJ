@@ -1,3 +1,0 @@
-C:/Users/Duda/Downloads/cg/Trabalho-3/build/CMakeFiles/rebuild_cache.dir
-C:/Users/Duda/Downloads/cg/Trabalho-3/build/CMakeFiles/jogo.dir
-C:/Users/Duda/Downloads/cg/Trabalho-3/build/CMakeFiles/edit_cache.dir
