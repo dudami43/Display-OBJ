@@ -1,5 +1,11 @@
 TODO
-- Mensurar a performance
+- Câmera WASD
+- Câmera mouse
+- Luz Sol
+- Luz Teto da sala
+- Luz Observador
+- Textura
+- Objeto transparente
 - Travar redimensionamento
 
 ### Tech

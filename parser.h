@@ -75,24 +75,54 @@ class OBJ
     }
     void ajusteFaces(Modelo &modelo)
     {
-        int min = modelo.faces[0].vertices[0].vertice;
+        int min_vertices = modelo.faces[0].vertices[0].vertice;
+        int min_normal = modelo.faces[0].vertices[0].normal;
+        int min_textura = modelo.faces[0].vertices[0].textura;
         for (int i = 0; i < modelo.faces.size(); i++)
         {
             for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
             {
                 //cout << modelo.faces[i].vertices[j].vertice << endl;
-                if (modelo.faces[i].vertices[j].vertice < min)
-                    min = modelo.faces[i].vertices[j].vertice;
+                if (modelo.faces[i].vertices[j].vertice < min_vertices)
+                    min_vertices = modelo.faces[i].vertices[j].vertice;
+
+                if (modelo.faces[i].vertices[j].normal < min_normal)
+                    min_normal = modelo.faces[i].vertices[j].normal;
+
+                if (modelo.faces[i].vertices[j].textura < min_textura)
+                    min_textura = modelo.faces[i].vertices[j].textura;
             }
         }
-        if (min < 0)
+        if (min_vertices < 0)
         {
             for (int i = 0; i < modelo.faces.size(); i++)
             {
                 for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
                 {
                     //cout << modelo.faces[i].vertices[j].vertice << endl;
-                    modelo.faces[i].vertices[j].vertice += 1 - min;
+                    modelo.faces[i].vertices[j].vertice += 1 - min_vertices;
+                }
+            }
+        }
+        if (min_normal < 0)
+        {
+            for (int i = 0; i < modelo.faces.size(); i++)
+            {
+                for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+                {
+                    //cout << modelo.faces[i].vertices[j].vertice << endl;
+                    modelo.faces[i].vertices[j].normal += 1 - min_normal;
+                }
+            }
+        }
+        if (min_textura < 0)
+        {
+            for (int i = 0; i < modelo.faces.size(); i++)
+            {
+                for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+                {
+                    //cout << modelo.faces[i].vertices[j].vertice << endl;
+                    modelo.faces[i].vertices[j].textura += 1 - min_textura;
                 }
             }
         }
@@ -125,7 +155,6 @@ class OBJ
                     arquivo >> vertice.x;
                     arquivo >> vertice.y;
                     arquivo >> vertice.z;
-                    //cout << "v " << vertice.x << " " << vertice.y << " " << vertice.z << endl;
                     arquivo.get(c);
                     if (c != '\n')
                     {
@@ -214,7 +243,20 @@ class OBJ
         {
             cout << "Erro ao abrir o arquivo";
         }
-        ajusteFaces(modelo);
+        ajusteFaces(modelo);   
+        /*for (int i = 0; i < modelo.faces.size(); i++)
+        {
+            for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+            {
+                //cout << modelo.faces[i].vertices[j].normal << " ";
+                cout << modelo.normal[modelo.faces[i].vertices[j].normal - 1].x << " ";
+                cout << modelo.normal[modelo.faces[i].vertices[j].normal - 1].y << " ";
+                cout << modelo.normal[modelo.faces[i].vertices[j].normal - 1].z << endl;
+                
+            }
+            //cout << endl;
+        }*/     
+       
         arquivo.close();
         return modelo;
     }
