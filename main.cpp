@@ -6,6 +6,9 @@
 #include <string>
 #include "parser.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "lib/stb_image.h"
+
 using namespace std;
 
 void init(void);
@@ -80,6 +83,8 @@ int qtdFrames = 0;
 int tempoInicial, tempoFinal, diferencaTempo;
 float framesPorSegundo;
 
+GLuint texture[1];
+
 void desenhaEixos()
 {
     glColor3f(1.0, 0.0, 0.0);
@@ -119,20 +124,87 @@ void carregarModelos(string nome, Modelo &modelo, int indice)
 
     for (int i = 0; i < modelo.faces.size(); i++)
     {
+        glBindTexture(GL_TEXTURE_2D, texture[0]);
         glBegin(GL_POLYGON);
         for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
         {
             //cout << modelo.faces[i].vertices[j].normal << " ";
             glNormal3f(modelo.normal[modelo.faces[i].vertices[j].normal - 1].x,
                        modelo.normal[modelo.faces[i].vertices[j].normal - 1].y,
-                       modelo.normal[modelo.faces[i].vertices[j].normal - 1].y);
+                       modelo.normal[modelo.faces[i].vertices[j].normal - 1].z);
+
+            glTexCoord2f(modelo.textura[modelo.faces[i].vertices[j].textura - 1].u,
+                         modelo.textura[modelo.faces[i].vertices[j].textura - 1].v);
+
             glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
                        modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
         }
-        //cout << endl;
         glEnd();
     }
+    glPopMatrix();
+}
+
+void objTransparente()
+{
+
+    glColor4f(0.30, 0.5, 0.27, 0.5);
+
+    glPushMatrix();
+
+    if (wireframe)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    //frente
+    glBegin(GL_POLYGON);
+    glVertex3f(-30, 30, 20);
+    glVertex3f(-30, -30, 20);
+    glVertex3f(30, -30, 20);
+    glVertex3f(30, 30, 20);
+    glEnd();
+
+    //lado esquerdo
+    glBegin(GL_POLYGON);
+    glVertex3f(-30, 30, 20);
+    glVertex3f(-30, 30, 19);
+    glVertex3f(-30, -30, 19);
+    glVertex3f(-30, -30, 20);
+    glEnd();
+
+    //atrás
+    glBegin(GL_POLYGON);
+    glVertex3f(-30, 30, 19);
+    glVertex3f(30, 30, 19);
+    glVertex3f(30, -30, 19);
+    glVertex3f(-30, -30, 19);
+    glEnd();
+
+    //lado direito
+    glBegin(GL_POLYGON);
+    glVertex3f(30, 30, 20);
+    glVertex3f(30, -30, 20);
+    glVertex3f(30, -30, 19);
+    glVertex3f(30, 30, 19);
+    glEnd();
+
+    //tampa
+    glBegin(GL_POLYGON);
+    glVertex3f(-30, 30, 19);
+    glVertex3f(-30, 30, 20);
+    glVertex3f(30, 30, 20);
+    glVertex3f(30, 30, 19);
+    glEnd();
+
+    //baixo
+    glBegin(GL_POLYGON);
+    glVertex3f(-30, -30, 20);
+    glVertex3f(-30, -30, 19);
+    glVertex3f(30, -30, 19);
+    glVertex3f(30, -30, 20);
+    glEnd();
+
     glPopMatrix();
 }
 
@@ -163,6 +235,25 @@ void init(void)
 
     sprintf(triangulos, "Poligonos: %d", num_poligonos);
     sprintf(ms, "0.0 ms");
+
+    int x, y, n;
+    unsigned char *data = stbi_load("Modelos/cube/default.png", &x, &y, &n, 0);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Create Texture
+    glGenTextures(1, texture); // define o numero de texturas
+
+    // Primeira textura
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //scale linearly when image bigger than texture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, x, y, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 }
 
 void display(void)
@@ -197,6 +288,7 @@ void display(void)
 
     num_poligonos = 0;
 
+    glDisable(GL_BLEND);
     for (int j = 0; j < contObj; j++)
     {
         if (objName[j][0] != 0 && !hidden[j])
@@ -208,6 +300,11 @@ void display(void)
     }
 
     desenhaEixos();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    objTransparente();
+    glDisable(GL_BLEND);
 
     glViewport(2 * (width / 3), 0, width / 3, height);
     glMatrixMode(GL_PROJECTION);
