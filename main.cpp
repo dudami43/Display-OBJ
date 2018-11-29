@@ -106,6 +106,7 @@ void desenhaEixos()
 
 void carregarModelos(string nome, Modelo &modelo, int indice)
 {
+    nome = "Modelos/cube/cube.obj";
     OBJ obj;
     modelo = obj.lerArquivo(nome);
 
@@ -148,7 +149,13 @@ void carregarModelos(string nome, Modelo &modelo, int indice)
 void objTransparente()
 {
 
-    glColor4f(0.30, 0.5, 0.27, 0.5);
+    float colors[4] = {0.30, 0.5, 0.27, 0.5};
+
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    glColor4fv(colors);
+
+    /*glMaterialfv(GL_FRONT, GL_AMBIENT, colors);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, colors);*/
 
     glPushMatrix();
 
@@ -159,6 +166,9 @@ void objTransparente()
 
     //frente
     glBegin(GL_POLYGON);
+
+    glNormal3f(0, 0, 1);
+
     glVertex3f(-30, 30, 20);
     glVertex3f(-30, -30, 20);
     glVertex3f(30, -30, 20);
@@ -167,6 +177,9 @@ void objTransparente()
 
     //lado esquerdo
     glBegin(GL_POLYGON);
+
+    glNormal3f(-1, 0, 0);
+
     glVertex3f(-30, 30, 20);
     glVertex3f(-30, 30, 19);
     glVertex3f(-30, -30, 19);
@@ -175,6 +188,9 @@ void objTransparente()
 
     //atrás
     glBegin(GL_POLYGON);
+
+    glNormal3f(0, 0, -1);
+
     glVertex3f(-30, 30, 19);
     glVertex3f(30, 30, 19);
     glVertex3f(30, -30, 19);
@@ -183,6 +199,9 @@ void objTransparente()
 
     //lado direito
     glBegin(GL_POLYGON);
+
+    glNormal3f(1, 0, 0);
+
     glVertex3f(30, 30, 20);
     glVertex3f(30, -30, 20);
     glVertex3f(30, -30, 19);
@@ -191,6 +210,9 @@ void objTransparente()
 
     //tampa
     glBegin(GL_POLYGON);
+
+    glNormal3f(0, 1, 0);
+
     glVertex3f(-30, 30, 19);
     glVertex3f(-30, 30, 20);
     glVertex3f(30, 30, 20);
@@ -199,6 +221,9 @@ void objTransparente()
 
     //baixo
     glBegin(GL_POLYGON);
+
+    glNormal3f(0, -1, 0);
+
     glVertex3f(-30, -30, 20);
     glVertex3f(-30, -30, 19);
     glVertex3f(30, -30, 19);
@@ -211,12 +236,63 @@ void objTransparente()
 void init(void)
 {
 
+    int x, y, n;
+    unsigned char *data = stbi_load("Modelos/cube/default.png", &x, &y, &n, 0);
+
     glClearColor(0.0, 0.0, 0.0, 0.0);                   // cor para limpeza do buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(0, width, 0, height);
+    /*********************
+    TEXTURA
+    **********************/
+    glShadeModel(GL_SMOOTH); // Enable Smooth Shading
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+    glEnable(GL_CULL_FACE);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Create Texture
+    glGenTextures(1, texture); // define o numero de texturas
+
+    // Primeira textura
+    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //scale linearly when image bigger than texture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
+    glTexImage2D(GL_TEXTURE_2D, texture[0], 3, x, y, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    /***********************
+     * ILUMINAÇÃO
+    ***********************/
+
+    /*
+        LUZ no infinito
+    */
+    GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat light_position[] = {1.0, 1.0, 1.0, 0.0};
+    GLfloat white_light[] = {1.0, 1.0, 1.0, 0.0};
+    GLfloat red_light[] = {1.0, 0.0, 0.0, 0.0};
+
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, mat_shininess);
+
+    /*
+    *********
+    */
+
     for (int k = 0; k < MAXOBJ; k++)
     {
         for (int i = 0; i < 4; i++)
@@ -236,24 +312,9 @@ void init(void)
     sprintf(triangulos, "Poligonos: %d", num_poligonos);
     sprintf(ms, "0.0 ms");
 
-    int x, y, n;
-    unsigned char *data = stbi_load("Modelos/cube/default.png", &x, &y, &n, 0);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    // Create Texture
-    glGenTextures(1, texture); // define o numero de texturas
-
-    // Primeira textura
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //scale linearly when image bigger than texture
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, x, y, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, width, 0, height);
 }
 
 void display(void)
@@ -289,6 +350,8 @@ void display(void)
     num_poligonos = 0;
 
     glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
     for (int j = 0; j < contObj; j++)
     {
         if (objName[j][0] != 0 && !hidden[j])
@@ -305,6 +368,8 @@ void display(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     objTransparente();
     glDisable(GL_BLEND);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
 
     glViewport(2 * (width / 3), 0, width / 3, height);
     glMatrixMode(GL_PROJECTION);
@@ -434,10 +499,10 @@ void desenhaMenu()
 
         //campo 1 (rotacaoAngulo)
         glBegin(GL_POLYGON);
-        glVertex2f(840, 480 - (l * 130));
         glVertex2f(800, 480 - (l * 130));
-        glVertex2f(800, 500 - (l * 130));
+        glVertex2f(840, 480 - (l * 130));
         glVertex2f(840, 500 - (l * 130));
+        glVertex2f(800, 500 - (l * 130));
         glEnd();
 
         //translacao
