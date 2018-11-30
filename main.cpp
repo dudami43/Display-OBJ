@@ -25,7 +25,11 @@ int contObj = 0; //quantidade de objetos importados. MAX = 3;
 const int MAXOBJ = 3;
 int num_poligonos = 0;
 
-Modelo modelo1, modelo2, modelo3;
+bool solLigada = 1;
+bool tetoLigada = 1;
+bool observadorLigada = 1;
+
+Modelo modelo[3];
 bool wireframe = true;
 
 //posicao do observador (camera)
@@ -104,11 +108,8 @@ void desenhaEixos()
     glEnd();
 }
 
-void carregarModelos(string nome, Modelo &modelo, int indice)
+void exibeModelos(int indice)
 {
-    nome = "Modelos/cube/cube.obj";
-    OBJ obj;
-    modelo = obj.lerArquivo(nome);
 
     glColor3f(colors[indice][0], colors[indice][1], colors[indice][2]);
 
@@ -123,23 +124,23 @@ void carregarModelos(string nome, Modelo &modelo, int indice)
     else
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    for (int i = 0; i < modelo.faces.size(); i++)
+    for (int i = 0; i < modelo[indice].faces.size(); i++)
     {
         glBindTexture(GL_TEXTURE_2D, texture[0]);
         glBegin(GL_POLYGON);
-        for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
+        for (int j = 0; j < modelo[indice].faces[i].vertices.size(); j++)
         {
             //cout << modelo.faces[i].vertices[j].normal << " ";
-            glNormal3f(modelo.normal[modelo.faces[i].vertices[j].normal - 1].x,
-                       modelo.normal[modelo.faces[i].vertices[j].normal - 1].y,
-                       modelo.normal[modelo.faces[i].vertices[j].normal - 1].z);
+            glNormal3f(modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].x,
+                       modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].y,
+                       modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].z);
 
-            glTexCoord2f(modelo.textura[modelo.faces[i].vertices[j].textura - 1].u,
-                         modelo.textura[modelo.faces[i].vertices[j].textura - 1].v);
+            glTexCoord2f(modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].u,
+                         modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].v);
 
-            glVertex3f(modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].x,
-                       modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].y,
-                       modelo.vertices[modelo.faces[i].vertices[j].vertice - 1].z);
+            glVertex3f(modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].x,
+                       modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].y,
+                       modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].z);
         }
         glEnd();
     }
@@ -288,19 +289,22 @@ void init(void)
     glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
     glLightfv(GL_LIGHT0, GL_SPECULAR, mat_shininess);
-    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
+    /*glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
     glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);*/
 
     /*
         ----------------------------
         LUZ NO TETO
     */
 
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT2);
+
     GLfloat mat_ambient_teto[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_specular_teto[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess_teto[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat light_position_teto[] = {0.0, 5.0, 0.0, 1.0};
+    GLfloat light_position_teto[] = {0.0, 50.0, 0.0, 1.0};
     GLfloat white_light_teto[] = {1.0, 1.0, 1.0, 0.0};
     GLfloat red_light_teto[] = {1.0, 0.0, 0.0, 0.0};
 
@@ -308,9 +312,16 @@ void init(void)
     glLightfv(GL_LIGHT2, GL_AMBIENT, mat_ambient_teto);
     glLightfv(GL_LIGHT2, GL_DIFFUSE, red_light_teto);
     glLightfv(GL_LIGHT2, GL_SPECULAR, mat_shininess_teto);
-    glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+
+    //glLightf( GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.2f );
+
+    //glLightf( GL_LIGHT0, GL_LINEAR_ATTENUATION , 0.5f );
+
+    //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.8f);
+
+    /*glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
     glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 1);
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 1);*/
 
     /*
     *********
@@ -328,7 +339,6 @@ void init(void)
             sprintf(escalaTexto[k][i], "1.0");
             escala[k][i] = 1.0;
         }
-
         objName[k][0] = 0;
     }
 
@@ -370,13 +380,14 @@ void display(void)
         sprintf(ms, "%0.3f ms", framesPorSegundo);
     }
 
-    num_poligonos = 0;
+    //num_poligonos = 0;
 
     /*
 
     LUZ SAINDO DO OBSERVADOR?
 
     */
+
     GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
@@ -389,9 +400,9 @@ void display(void)
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
     glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, red_light);
-    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
+    /*glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
     glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 1);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);*/
 
     /*
         ----------------------------------
@@ -399,14 +410,35 @@ void display(void)
 
     glDisable(GL_BLEND);
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
+    if (solLigada)
+    {
+        glEnable(GL_LIGHT0);
+    }
+    else
+    {
+        glDisable(GL_LIGHT0);
+    }
+    if (observadorLigada)
+    {
+        glEnable(GL_LIGHT1);
+    }
+    else
+    {
+        glDisable(GL_LIGHT1);
+    }
+    if (tetoLigada)
+    {
+        glEnable(GL_LIGHT2);
+    }
+    else
+    {
+        glDisable(GL_LIGHT2);
+    }
     for (int j = 0; j < contObj; j++)
     {
-        if (objName[j][0] != 0 && !hidden[j])
+        if (!hidden[j])
         {
-            carregarModelos(string(objName[j]), modelo1, j);
-            num_poligonos += modelo1.faces.size();
+            exibeModelos(j);
             sprintf(triangulos, "Poligonos: %d", num_poligonos);
         }
     }
@@ -418,8 +450,18 @@ void display(void)
     objTransparente();
     glDisable(GL_BLEND);
     glDisable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
-    glDisable(GL_LIGHT1);
+    if (solLigada)
+    {
+        glDisable(GL_LIGHT0);
+    }
+    if (observadorLigada)
+    {
+        glDisable(GL_LIGHT1);
+    }
+    if (tetoLigada)
+    {
+        glDisable(GL_LIGHT2);
+    }
 
     glViewport(2 * (width / 3), 0, width / 3, height);
     glMatrixMode(GL_PROJECTION);
@@ -682,6 +724,15 @@ void abrirArquivo()
         j++;
     }
     objName[contObj][j] = 0;
+
+    if (objName[contObj][0] != 0)
+    {
+        string nome = string(objName[contObj]);
+        //nome = "Modelos/cube/cube.obj";
+        OBJ obj;
+        modelo[contObj] = obj.lerArquivo(nome);
+        num_poligonos += modelo[contObj].faces.size();
+    }
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -782,9 +833,27 @@ void keyboard(unsigned char key, int x, int y)
         if (key == 'd' || key == 'D')
             viewer[0] += 1.0;
         if (key == 's' || key == 'S')
-            viewer[1] -= 1.0;
+            viewer[2] -= 1.0;
         if (key == 'w' || key == 'W')
-            viewer[1] += 1.0;
+            viewer[2] += 1.0;
+
+        if (key == 49)
+        {
+            cout << "sol" << endl;
+            solLigada = !solLigada;
+        }
+
+        if (key == 50)
+        {
+            cout << "teto" << endl;
+            tetoLigada = !tetoLigada;
+        }
+
+        if (key == 51)
+        {
+            cout << "obs" << endl;
+            observadorLigada = !observadorLigada;
+        }
     }
 }
 
