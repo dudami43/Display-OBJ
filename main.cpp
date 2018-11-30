@@ -288,6 +288,29 @@ void init(void)
     glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
     glLightfv(GL_LIGHT0, GL_SPECULAR, mat_shininess);
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
+
+    /*
+        ----------------------------
+        LUZ NO TETO
+    */
+
+    GLfloat mat_ambient_teto[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_specular_teto[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_shininess_teto[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat light_position_teto[] = {0.0, 5.0, 0.0, 1.0};
+    GLfloat white_light_teto[] = {1.0, 1.0, 1.0, 0.0};
+    GLfloat red_light_teto[] = {1.0, 0.0, 0.0, 0.0};
+
+    glLightfv(GL_LIGHT2, GL_POSITION, light_position_teto);
+    glLightfv(GL_LIGHT2, GL_AMBIENT, mat_ambient_teto);
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, red_light_teto);
+    glLightfv(GL_LIGHT2, GL_SPECULAR, mat_shininess_teto);
+    glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 1);
 
     /*
     *********
@@ -349,9 +372,35 @@ void display(void)
 
     num_poligonos = 0;
 
+    /*
+
+    LUZ SAINDO DO OBSERVADOR?
+
+    */
+    GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat light_position[] = {viewer[0], viewer[1], viewer[2], 1.0};
+    GLfloat white_light[] = {0.10, 0.10, 0.10, 0.0};
+    GLfloat red_light[] = {1.0, 0.0, 0.0, 0.0};
+    GLfloat spot_direction[] = {0.0, 0.0, 0.0};
+
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, red_light);
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 1);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);
+
+    /*
+        ----------------------------------
+    */
+
     glDisable(GL_BLEND);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
     for (int j = 0; j < contObj; j++)
     {
         if (objName[j][0] != 0 && !hidden[j])
@@ -370,6 +419,7 @@ void display(void)
     glDisable(GL_BLEND);
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
+    glDisable(GL_LIGHT1);
 
     glViewport(2 * (width / 3), 0, width / 3, height);
     glMatrixMode(GL_PROJECTION);
