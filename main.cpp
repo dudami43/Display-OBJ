@@ -238,7 +238,7 @@ void init(void)
 {
 
     int x, y, n;
-    unsigned char *data = stbi_load("Modelos/cube/default.png", &x, &y, &n, 0);
+    unsigned char *data = stbi_load("Modelos/cube/default2.png", &x, &y, &n, 0);
 
     glClearColor(0.0, 0.0, 0.0, 0.0);                   // cor para limpeza do buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
@@ -264,7 +264,7 @@ void init(void)
     glBindTexture(GL_TEXTURE_2D, texture[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //scale linearly when image bigger than texture
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
-    glTexImage2D(GL_TEXTURE_2D, texture[0], 3, x, y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, x, y, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, data);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
@@ -434,14 +434,17 @@ void display(void)
     {
         glDisable(GL_LIGHT2);
     }
+    glEnable(GL_TEXTURE_2D);
     for (int j = 0; j < contObj; j++)
     {
         if (!hidden[j])
         {
             exibeModelos(j);
+
             sprintf(triangulos, "Poligonos: %d", num_poligonos);
         }
     }
+    glDisable(GL_TEXTURE_2D);
 
     desenhaEixos();
 
