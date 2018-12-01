@@ -25,15 +25,15 @@ int contObj = 0; //quantidade de objetos importados. MAX = 3;
 const int MAXOBJ = 3;
 int num_poligonos = 0;
 
-bool solLigada = 1;
-bool tetoLigada = 1;
-bool observadorLigada = 1;
+bool solLigada = 0;
+bool tetoLigada = 0;
+bool observadorLigada = 0;
 
 Modelo modelo[3];
 bool wireframe = true;
 
 //posicao do observador (camera)
-GLdouble viewer[] = {50.0, 50.0, 50.0};
+GLfloat viewer[] = {50.0, 50.0, 50.0};
 
 float colors[3][3] = {{0.96, 0.73, 0.26},
                       {0.84, 0.26, 0.96},
@@ -87,7 +87,8 @@ int qtdFrames = 0;
 int tempoInicial, tempoFinal, diferencaTempo;
 float framesPorSegundo;
 
-GLuint texture[1];
+int luzTeste[4];
+GLuint texture1, texture2, texture3;
 
 void desenhaEixos()
 {
@@ -117,7 +118,6 @@ void exibeModelos(int indice)
     glTranslatef(translacao[indice][0], translacao[indice][1], translacao[indice][2]);
     glRotatef(rotacao[indice][0], rotacao[indice][1], rotacao[indice][2], rotacao[indice][3]);
     glScalef(escala[indice][0], escala[indice][1], escala[indice][2]);
-    //glPopMatrix();
 
     if (wireframe)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -126,17 +126,32 @@ void exibeModelos(int indice)
 
     for (int i = 0; i < modelo[indice].faces.size(); i++)
     {
-        glBindTexture(GL_TEXTURE_2D, texture[0]);
+        switch (indice)
+        {
+        case 0:
+            glBindTexture(GL_TEXTURE_2D, texture1);
+            break;
+        case 1:
+            glBindTexture(GL_TEXTURE_2D, texture2);
+            break;
+        case 2:
+            glBindTexture(GL_TEXTURE_2D, texture3);
+            break;
+        }
         glBegin(GL_POLYGON);
         for (int j = 0; j < modelo[indice].faces[i].vertices.size(); j++)
         {
-            //cout << modelo.faces[i].vertices[j].normal << " ";
-            glNormal3f(modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].x,
-                       modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].y,
-                       modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].z);
-
-            glTexCoord2f(modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].u,
-                         modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].v);
+            if (modelo[indice].possuiNormal)
+            {
+                glNormal3f(modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].x,
+                           modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].y,
+                           modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].z);
+            }
+            if (modelo[indice].possuiTextura)
+            {
+                glTexCoord2f(modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].u,
+                             modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].v);
+            }
 
             glVertex3f(modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].x,
                        modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].y,
@@ -234,47 +249,8 @@ void objTransparente()
     glPopMatrix();
 }
 
-void init(void)
+void luzInfinito()
 {
-
-    int x, y, n;
-    unsigned char *data = stbi_load("Modelos/cube/default2.png", &x, &y, &n, 0);
-
-    glClearColor(0.0, 0.0, 0.0, 0.0);                   // cor para limpeza do buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
-
-    /*********************
-    TEXTURA
-    **********************/
-    glShadeModel(GL_SMOOTH); // Enable Smooth Shading
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
-    glEnable(GL_CULL_FACE);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    // Create Texture
-    glGenTextures(1, texture); // define o numero de texturas
-
-    // Primeira textura
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //scale linearly when image bigger than texture
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, x, y, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-    /***********************
-     * ILUMINAÇÃO
-    ***********************/
-
-    /*
-        LUZ no infinito
-    */
     GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
@@ -289,22 +265,17 @@ void init(void)
     glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
     glLightfv(GL_LIGHT0, GL_SPECULAR, mat_shininess);
-    /*glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
-    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);*/
+}
 
-    /*
-        ----------------------------
-        LUZ NO TETO
-    */
-
+void luzTeto()
+{
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT2);
 
     GLfloat mat_ambient_teto[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat mat_specular_teto[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_specular_teto[] = {10.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess_teto[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat light_position_teto[] = {0.0, 50.0, 0.0, 1.0};
+    GLfloat light_position_teto[] = {0.0, 30.0, 0.0, 1.0};
     GLfloat white_light_teto[] = {1.0, 1.0, 1.0, 0.0};
     GLfloat red_light_teto[] = {1.0, 0.0, 0.0, 0.0};
 
@@ -313,19 +284,51 @@ void init(void)
     glLightfv(GL_LIGHT2, GL_DIFFUSE, red_light_teto);
     glLightfv(GL_LIGHT2, GL_SPECULAR, mat_shininess_teto);
 
-    //glLightf( GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.2f );
-
-    //glLightf( GL_LIGHT0, GL_LINEAR_ATTENUATION , 0.5f );
-
-    //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.8f);
-
-    /*glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
+    glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 500);
     glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 1);*/
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
 
-    /*
-    *********
-    */
+    glGetLightiv(GL_LIGHT2, GL_POSITION, luzTeste);
+    cout << luzTeste[0] << " " << luzTeste[1] << " " << luzTeste[2] << " " << luzTeste[3] << endl;
+}
+
+void luzObservador()
+{
+
+    GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat light_position[] = {viewer[0], viewer[1], viewer[2], 1.0};
+    GLfloat white_light[] = {0.10, 0.10, 0.10, 0.0};
+    GLfloat red_light[] = {1.0, 0.0, 0.0, 0.0};
+    GLfloat spot_direction[] = {0.0, 0.0, 0.0};
+
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, red_light);
+    /*glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 1);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);*/
+}
+
+void init(void)
+{
+
+    glShadeModel(GL_SMOOTH); // Enable Smooth Shading
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+    glEnable(GL_CULL_FACE);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);                   // cor para limpeza do buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //limpa a janela
+
+    luzInfinito();
+    luzTeto();
 
     for (int k = 0; k < MAXOBJ; k++)
     {
@@ -380,35 +383,8 @@ void display(void)
         sprintf(ms, "%0.3f ms", framesPorSegundo);
     }
 
-    //num_poligonos = 0;
+    // luzObservador();
 
-    /*
-
-    LUZ SAINDO DO OBSERVADOR?
-
-    */
-
-    GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat light_position[] = {viewer[0], viewer[1], viewer[2], 1.0};
-    GLfloat white_light[] = {0.10, 0.10, 0.10, 0.0};
-    GLfloat red_light[] = {1.0, 0.0, 0.0, 0.0};
-    GLfloat spot_direction[] = {0.0, 0.0, 0.0};
-
-    glLightfv(GL_LIGHT1, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-    glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, red_light);
-    /*glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 1);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);*/
-
-    /*
-        ----------------------------------
-    */
-
-    glDisable(GL_BLEND);
     glEnable(GL_LIGHTING);
     if (solLigada)
     {
@@ -450,7 +426,7 @@ void display(void)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    objTransparente();
+    // objTransparente();
     glDisable(GL_BLEND);
     glDisable(GL_LIGHTING);
     if (solLigada)
@@ -477,6 +453,55 @@ void display(void)
 
     glutSwapBuffers();
     glutPostRedisplay();
+}
+
+void carregarTextura(string nomeOriginal)
+{
+    /*********************
+    TEXTURA
+    **********************/
+
+    int posAux;
+    //cout << nomeOriginal << endl << nomeOriginal.size() << endl;
+    for (int i = nomeOriginal.size() - 1; i >= 0; i--)
+    {
+        //cout << nomeOriginal[i] << endl;
+        if (nomeOriginal[i] == '/')
+        {
+            posAux = i;
+            break;
+        }
+    }
+
+    string nome = nomeOriginal.substr(0, posAux) + "/default.png";
+
+    int x, y, n;
+    unsigned char *data = stbi_load(nome.c_str(), &x, &y, &n, 0);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    // Create Texture
+    switch (contObj)
+    {
+    case 0:
+        glGenTextures(1, &texture1);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        break;
+    case 1:
+        glGenTextures(1, &texture2);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        break;
+    case 2:
+        glGenTextures(1, &texture3);
+        glBindTexture(GL_TEXTURE_2D, texture3);
+        break;
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //scale linearly when image bigger than texture
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, x, y, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 }
 
 void desenhaMenu()
@@ -734,6 +759,7 @@ void abrirArquivo()
         //nome = "Modelos/cube/cube.obj";
         OBJ obj;
         modelo[contObj] = obj.lerArquivo(nome);
+        //carregarTextura(nome);
         num_poligonos += modelo[contObj].faces.size();
     }
 }
@@ -842,19 +868,19 @@ void keyboard(unsigned char key, int x, int y)
 
         if (key == 49)
         {
-            cout << "sol" << endl;
+            // cout << "sol" << endl;
             solLigada = !solLigada;
         }
 
         if (key == 50)
         {
-            cout << "teto" << endl;
+            // cout << "teto" << endl;
             tetoLigada = !tetoLigada;
         }
 
         if (key == 51)
         {
-            cout << "obs" << endl;
+            // cout << "obs" << endl;
             observadorLigada = !observadorLigada;
         }
     }
