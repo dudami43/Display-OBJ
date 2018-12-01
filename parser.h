@@ -53,12 +53,14 @@ struct Modelo
     vector<Textura> textura;
     vector<Normal> normal;
     vector<Face> faces;
+    bool possuiTextura = false;
+    bool possuiNormal = false;
 };
 
 class OBJ
 {
   private:
-    void insertFace(int insercao, int aux, Vertice_Face &vf)
+    void insertFace(int insercao, int aux, Vertice_Face &vf, Modelo &modelo)
     {
         switch (insercao)
         {
@@ -66,9 +68,11 @@ class OBJ
             vf.vertice = aux;
             break;
         case 1:
+            modelo.possuiTextura = true;
             vf.textura = aux;
             break;
         case 2:
+            modelo.possuiNormal = true;
             vf.normal = aux;
             break;
         }
@@ -104,7 +108,7 @@ class OBJ
                 }
             }
         }
-        if (min_normal < 0)
+        if (modelo.possuiNormal && min_normal < 0)
         {
             for (int i = 0; i < modelo.faces.size(); i++)
             {
@@ -115,7 +119,7 @@ class OBJ
                 }
             }
         }
-        if (min_textura < 0)
+        if (modelo.possuiTextura && min_textura < 0)
         {
             for (int i = 0; i < modelo.faces.size(); i++)
             {
@@ -206,7 +210,7 @@ class OBJ
                             }
                             else
                             {
-                                insertFace(insercao, atoi(aux), vf);
+                                insertFace(insercao, atoi(aux), vf, modelo);
                                 insercao++;
                                 aux[0] = c;
                                 i = 1;
@@ -216,7 +220,7 @@ class OBJ
                         else if (c == ' ')
                         {
                             aux[i++] = '\0';
-                            insertFace(insercao, atoi(aux), vf);
+                            insertFace(insercao, atoi(aux), vf, modelo);
                             insercao = 0;
                             i = 0;
                             verifica = true;
@@ -227,7 +231,7 @@ class OBJ
                             aux[i++] = '\0';
                             if (verifica)
                             {
-                                insertFace(insercao, atoi(aux), vf);
+                                insertFace(insercao, atoi(aux), vf, modelo);
                                 face.vertices.push_back(vf);
                                 modelo.faces.push_back(face);
                                 face.vertices.clear();
@@ -243,7 +247,7 @@ class OBJ
         {
             cout << "Erro ao abrir o arquivo";
         }
-        ajusteFaces(modelo);   
+        ajusteFaces(modelo);
         /*for (int i = 0; i < modelo.faces.size(); i++)
         {
             for (int j = 0; j < modelo.faces[i].vertices.size(); j++)
@@ -255,8 +259,8 @@ class OBJ
                 
             }
             //cout << endl;
-        }*/     
-       
+        }*/
+
         arquivo.close();
         return modelo;
     }

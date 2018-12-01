@@ -26,14 +26,14 @@ const int MAXOBJ = 3;
 int num_poligonos = 0;
 
 bool solLigada = 1;
-bool tetoLigada = 1;
-bool observadorLigada = 1;
+bool tetoLigada = 0;
+bool observadorLigada = 0;
 
 Modelo modelo[3];
 bool wireframe = true;
 
 //posicao do observador (camera)
-GLdouble viewer[] = {50.0, 50.0, 50.0};
+GLfloat viewer[] = {50.0, 50.0, 50.0};
 
 float colors[3][3] = {{0.96, 0.73, 0.26},
                       {0.84, 0.26, 0.96},
@@ -131,12 +131,17 @@ void exibeModelos(int indice)
         for (int j = 0; j < modelo[indice].faces[i].vertices.size(); j++)
         {
             //cout << modelo.faces[i].vertices[j].normal << " ";
-            glNormal3f(modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].x,
-                       modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].y,
-                       modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].z);
-
-            glTexCoord2f(modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].u,
-                         modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].v);
+            if (modelo[indice].possuiNormal)
+            {
+                glNormal3f(modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].x,
+                           modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].y,
+                           modelo[indice].normal[modelo[indice].faces[i].vertices[j].normal - 1].z);
+            }
+            if (modelo[indice].possuiTextura)
+            {
+                glTexCoord2f(modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].u,
+                             modelo[indice].textura[modelo[indice].faces[i].vertices[j].textura - 1].v);
+            }
 
             glVertex3f(modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].x,
                        modelo[indice].vertices[modelo[indice].faces[i].vertices[j].vertice - 1].y,
@@ -287,11 +292,11 @@ void init(void)
 
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, red_light);
     glLightfv(GL_LIGHT0, GL_SPECULAR, mat_shininess);
-    /*glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
     glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);*/
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
 
     /*
         ----------------------------
@@ -299,7 +304,6 @@ void init(void)
     */
 
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT2);
 
     GLfloat mat_ambient_teto[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_specular_teto[] = {1.0, 1.0, 1.0, 1.0};
@@ -313,15 +317,9 @@ void init(void)
     glLightfv(GL_LIGHT2, GL_DIFFUSE, red_light_teto);
     glLightfv(GL_LIGHT2, GL_SPECULAR, mat_shininess_teto);
 
-    //glLightf( GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.2f );
-
-    //glLightf( GL_LIGHT0, GL_LINEAR_ATTENUATION , 0.5f );
-
-    //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.8f);
-
-    /*glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0);
-    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 1);*/
+    glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0.2);
+    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.2);
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.2);
 
     /*
     *********
@@ -357,7 +355,7 @@ void display(void)
     glViewport(0, 0, 2 * (width / 3), height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50, 1, 1, 200);
+    gluPerspective(50, 1, 1, 500);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
@@ -384,7 +382,7 @@ void display(void)
 
     /*
 
-    LUZ SAINDO DO OBSERVADOR?
+    LUZ SAINDO DO OBSERVADOR
 
     */
 
@@ -400,8 +398,8 @@ void display(void)
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
     glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, red_light);
-    /*glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 1);
+    /*glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.2);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.2);
     glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);*/
 
     /*
