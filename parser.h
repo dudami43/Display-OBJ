@@ -108,7 +108,7 @@ class OBJ
                 }
             }
         }
-        if (min_normal < 0)
+        if (modelo.possuiNormal && min_normal < 0)
         {
             for (int i = 0; i < modelo.faces.size(); i++)
             {
@@ -119,7 +119,7 @@ class OBJ
                 }
             }
         }
-        if (min_textura < 0)
+        if (modelo.possuiTextura && min_textura < 0)
         {
             for (int i = 0; i < modelo.faces.size(); i++)
             {

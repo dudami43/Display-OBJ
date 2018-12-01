@@ -33,7 +33,8 @@ Modelo modelo[3];
 bool wireframe = true;
 
 //posicao do observador (camera)
-GLfloat viewer[] = {50.0, 50.0, 50.0};
+GLfloat viewer[] = {2.0, 2.0, 2.0};
+GLfloat look[] = {0.0, 0.0, 0.0};
 
 float colors[3][3] = {{0.96, 0.73, 0.26},
                       {0.84, 0.26, 0.96},
@@ -263,16 +264,15 @@ void luzInfinito()
 
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, red_light);
     glLightfv(GL_LIGHT0, GL_SPECULAR, mat_shininess);
 }
 
 void luzTeto()
 {
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT2);
 
-    GLfloat mat_ambient_teto[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_ambient_teto[] = {0.5, 0.5, 0.5, 1.0};
     GLfloat mat_specular_teto[] = {10.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess_teto[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat light_position_teto[] = {0.0, 30.0, 0.0, 1.0};
@@ -284,32 +284,34 @@ void luzTeto()
     glLightfv(GL_LIGHT2, GL_DIFFUSE, red_light_teto);
     glLightfv(GL_LIGHT2, GL_SPECULAR, mat_shininess_teto);
 
-    glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 500);
-    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0);
-    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0);
+    glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 0.5);
+    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION, 0.005);
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0001);
 
-    glGetLightiv(GL_LIGHT2, GL_POSITION, luzTeste);
-    cout << luzTeste[0] << " " << luzTeste[1] << " " << luzTeste[2] << " " << luzTeste[3] << endl;
+    //glGetLightiv(GL_LIGHT2, GL_POSITION, luzTeste);
+    //cout << luzTeste[0] << " " << luzTeste[1] << " " << luzTeste[2] << " " << luzTeste[3] << endl;
 }
 
 void luzObservador()
 {
 
-    GLfloat mat_ambient[] = {1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_ambient[] = {0.1, 0.1, 0.1, 1.0};
     GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat mat_shininess[] = {1.0, 1.0, 1.0, 1.0};
     GLfloat light_position[] = {viewer[0], viewer[1], viewer[2], 1.0};
     GLfloat white_light[] = {0.10, 0.10, 0.10, 0.0};
     GLfloat red_light[] = {1.0, 0.0, 0.0, 0.0};
-    GLfloat spot_direction[] = {0.0, 0.0, 0.0};
+    GLfloat spot_direction[] = {look[0] - viewer[0], look[1] - viewer[1], look[2] - viewer[2], 1.0};
 
     glLightfv(GL_LIGHT1, GL_POSITION, light_position);
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
     glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, red_light);
-    /*glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0);
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 1);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);*/
+    glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 20.0f);
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 10.0f);
+    glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.2);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.05);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0);
 }
 
 void init(void)
@@ -360,7 +362,7 @@ void display(void)
     glViewport(0, 0, 2 * (width / 3), height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50, 1, 1, 200);
+    gluPerspective(50, 1, 1, 500);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
@@ -383,7 +385,7 @@ void display(void)
         sprintf(ms, "%0.3f ms", framesPorSegundo);
     }
 
-    // luzObservador();
+    luzObservador();
 
     glEnable(GL_LIGHTING);
     if (solLigada)
@@ -426,7 +428,7 @@ void display(void)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // objTransparente();
+    objTransparente();
     glDisable(GL_BLEND);
     glDisable(GL_LIGHTING);
     if (solLigada)
@@ -501,7 +503,7 @@ void carregarTextura(string nomeOriginal)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //scale linearly when image smalled than texture
     glTexImage2D(GL_TEXTURE_2D, 0, 3, x, y, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    // glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 }
 
 void desenhaMenu()
@@ -759,7 +761,7 @@ void abrirArquivo()
         //nome = "Modelos/cube/cube.obj";
         OBJ obj;
         modelo[contObj] = obj.lerArquivo(nome);
-        //carregarTextura(nome);
+        carregarTextura(nome);
         num_poligonos += modelo[contObj].faces.size();
     }
 }
@@ -865,6 +867,10 @@ void keyboard(unsigned char key, int x, int y)
             viewer[2] -= 1.0;
         if (key == 'w' || key == 'W')
             viewer[2] += 1.0;
+        if (key == 'q' || key == 'Q')
+            viewer[1] -= 1.0;
+        if (key == 'e' || key == 'E')
+            viewer[1] += 1.0;
 
         if (key == 49)
         {
