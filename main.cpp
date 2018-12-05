@@ -4,11 +4,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
+#include <math.h>
 #include "parser.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "lib/stb_image.h"
-
+#define PI 3.14159265
 using namespace std;
 
 void init(void);
@@ -32,9 +33,11 @@ bool observadorLigada = 0;
 Modelo modelo[3];
 bool wireframe = true;
 
-//posicao do observador (camera)
-GLfloat viewer[] = {2.0, 2.0, 2.0};
-GLfloat look[] = {0.0, 0.0, 0.0};
+GLfloat viewer[] = {2.0, 2.0, 2.0}; //posicao
+GLfloat look[] = {2.0, 2.0, 2.0};
+GLfloat cima[] = {0.0, 1.0, 0.0};
+GLfloat cima_mundo[] = {0.0, 1.0, 0.0};
+GLfloat direita[] = {1.0, 0.0, 0.0};
 
 float colors[3][3] = {{0.96, 0.73, 0.26},
                       {0.84, 0.26, 0.96},
@@ -71,6 +74,9 @@ int estadoClick = -1;
     0 ate MAXOBJ
 */
 int estadoClickObj = -1;
+int clickX, clickY;
+GLfloat yaw = 45;
+GLfloat pitch = 35;
 
 float rotacao[MAXOBJ][4] = {0.0};
 float translacao[MAXOBJ][3] = {0.0};
@@ -90,6 +96,27 @@ float framesPorSegundo;
 
 int luzTeste[4];
 GLuint texture1, texture2, texture3;
+
+void produtoVetorial(GLfloat a[], GLfloat b[], GLfloat result[])
+{
+    result[0] = a[1] * b[2] - a[2] * b[1];
+    result[1] = a[2] * b[0] - a[0] * b[2];
+    result[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+void normalizaVetor(GLfloat a[])
+{
+    if (a[0] != 0 || a[1] != 0 || a[2] != 0)
+    {
+        GLfloat norma = sqrt((a[0] * a[0]) + (a[1] * a[1]) + (a[2] * a[2]));
+        //cout << norma << endl;
+        a[0] = a[0] / norma;
+        a[1] = a[1] / norma;
+        a[2] = a[2] / norma;
+    }
+
+    //cout << a[0] << " " << a[1] << " " << a[2];
+}
 
 void desenhaEixos()
 {
@@ -365,9 +392,9 @@ void display(void)
     gluPerspective(50, 1, 1, 500);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(viewer[0], viewer[1], viewer[2], // define posicao do observador
-              0.0, 0.0, 0.0,                   // ponto de interesse (foco)
-              0.0, 1.0, 0.0);
+    gluLookAt(viewer[0], viewer[1], viewer[2],                               // define posicao do observador
+              viewer[0] - look[0], viewer[1] - look[1], viewer[2] - look[2], // ponto de interesse (foco)
+              cima[0], cima[1], cima[2]);
 
     if (qtdFrames == 0)
     {
@@ -858,20 +885,35 @@ void keyboard(unsigned char key, int x, int y)
         {
             wireframe = wireframe ? 0 : 1;
         }
-
+        // w = posicao - (direcao*constante)
+        // s = posicao + (direcao*constante)
+        // d = posicao + (direita*constante)
+        // a = posicao - (direita*constante)
         if (key == 'a' || key == 'A')
-            viewer[0] -= 1.0;
+        {
+            viewer[0] = viewer[0] - (direita[0] * 0.2);
+            viewer[1] = viewer[1] - (direita[1] * 0.2);
+            viewer[2] = viewer[2] - (direita[2] * 0.2);
+        }
         if (key == 'd' || key == 'D')
-            viewer[0] += 1.0;
+        {
+            viewer[0] = viewer[0] + (direita[0] * 0.2);
+            viewer[1] = viewer[1] + (direita[1] * 0.2);
+            viewer[2] = viewer[2] + (direita[2] * 0.2);
+        }
         if (key == 's' || key == 'S')
-            viewer[2] -= 1.0;
+        {
+            viewer[0] = viewer[0] + (look[0] * 0.2);
+            viewer[1] = viewer[1] + (look[1] * 0.2);
+            viewer[2] = viewer[2] + (look[2] * 0.2);
+        }
         if (key == 'w' || key == 'W')
-            viewer[2] += 1.0;
-        if (key == 'q' || key == 'Q')
-            viewer[1] -= 1.0;
-        if (key == 'e' || key == 'E')
-            viewer[1] += 1.0;
-
+        {
+            viewer[0] = viewer[0] - (look[0] * 0.2);
+            viewer[1] = viewer[1] - (look[1] * 0.2);
+            viewer[2] = viewer[2] - (look[2] * 0.2);
+        }
+        //cout << viewer[0] << " " << viewer[1] << " " << viewer[2] << endl;
         if (key == 49)
         {
             // cout << "sol" << endl;
@@ -895,7 +937,8 @@ void keyboard(unsigned char key, int x, int y)
 void mouse(int button, int state, int x, int y)
 {
     y = height - y;
-
+    clickX = x;
+    clickY = y;
     //começa como -1 e se não for detectado que o click foi em alguma caixa, no final ele termina como -1 (click fora de caixa)
     estadoClick = -1;
     estadoClickObj = -1;
@@ -985,6 +1028,25 @@ void mouse(int button, int state, int x, int y)
     }
 }
 
+void dragdrop(int x, int y)
+{
+    int deltaX = x - clickX;
+    int deltaY = y - clickY;
+    clickX = x;
+    clickY = y;
+    yaw += (deltaX * 0.1);
+    pitch += (deltaY * 0.1);
+    cout << yaw << " " << pitch << endl;
+    look[0] = cos(pitch * PI / 180.0) * cos(yaw * PI / 180.0);
+    look[1] = sin(pitch * PI / 180.0);
+    look[2] = cos(pitch * PI / 180.0) * sin(yaw * PI / 180.0);
+    normalizaVetor(look);
+    produtoVetorial(cima_mundo, look, direita);
+    normalizaVetor(direita);
+    produtoVetorial(look, direita, cima);
+    normalizaVetor(cima);
+}
+
 int main(int argc, char **argv)
 {
     glutInit(&argc, argv);                                    //inicializa a glut
@@ -997,6 +1059,7 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);   //determina fun��o callback de desenho
     glutKeyboardFunc(keyboard); //determina fun��o callback de teclado
     glutMouseFunc(mouse);
+    glutMotionFunc(dragdrop);
 
     glEnable(GL_DEPTH_TEST); //habilita remo��o de superf�cies ocultas usando Z-Buffer
 
